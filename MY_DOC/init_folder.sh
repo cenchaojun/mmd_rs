@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
-root="../"
-
-ln -s ${root}../../data ${root}./data
-ln -s ${root}../../data/mmdet_results/ ${root}./results
-ln -s ${root}../../data/intermediate_results/ ${root}./intermediate_results
-ln -s ${root}../../data/mmdet_checkpoints/ ${root}./checkpoints
+cd ..
+rm data
+rm resutls
+rm intermediate_results
+rm checkpoints
+ln -s ../../data ./data
+ln -s ../../data/mmdet_results/ ./results
+ln -s ../../data/intermediate_results/ ./intermediate_results
+ln -s ../../data/mmdet_checkpoints/ ./checkpoints
