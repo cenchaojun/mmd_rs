@@ -1,0 +1,36 @@
+cat /usr/local/cuda/version.txt
+mmcv的版本为1.1.4
+mmd的版本为2.4.0
+- 安装conda：bash Anaconda3-2019.03-Linux-x86_64.sh
+- 安装torch：pip install torch-1.6.0+cu101-cp37-cp37m-linux_x86_64.whl
+- 安装torchvision： pip install torchvision-0.7.0+cu101-cp37-cp37m-linux_x86_64.whl
+- 安装open cv：
+  -  scp huangziyue@192.168.170.2:/home/huangziyue/TOOLS/opencv-python-4.4.0.44.tar.gz  ./opencv-python.tar.gz
+  -  tar  -zxvf opencv-python.tar.gz
+  -  cd opencv-python-4.4.0.44/
+  - pip install scikit-build
+  - python setup.py install
+  - 安装较慢，耐心等待
+- 安装mmcv：
+  - cd mmcv-new
+  - pip install -e .
+- 安装mmdet
+  - pip install -r requirements/build.txt
+  - python setup.py develop
+- 安装DOTA相关
+  - cd DOTA_devkit
+  - python setup.py build_ext --inplace
+  - cd ..
+  - bash compile.sh
+- 建立软连接
+
+  -
+```
+ln -s ../../data ./data
+ln -s ../../data/mmdet_results/ ./results
+ln -s ../../data/intermediate_results/ ./intermediate_results
+ln -s ../../data/mmdet_checkpoints/ ./checkpoints
+ ```
+
+- 运行
+  - python train_dota.py
