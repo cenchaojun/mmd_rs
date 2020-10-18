@@ -1,7 +1,7 @@
 import argparse
 import copy
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "8,9"
+os.environ["CUDA_VISIBLE_DEVICES"] = '2,3'
 
 import os.path as osp
 import time
@@ -82,28 +82,28 @@ def parse_args(args=''):
 
 def main():
 
-    # args = ['./DOTA_configs/atss/atss_r50_fpn_1x_coco.py',
-    #         '--gpus', '2',
-    #         '--no-validate',
-    #         '--work-dir', './results/atss'
-    #         ]
-    # args = ['./configs/DOTA_test/retinanet_obb_r50_fpn_2x_dota.py',
-    #         '--gpus', '4',
-    #         '--no-validate',
-    #         '--work-dir', './results/retinanet_obb_mmd'
-    #         ]
-
     # args = ['./configs/DOTA_hbb/retinanet_r50_fpn_2x_dota.py',
-    #         '--gpus', '4',
+    #         '--gpus', '2',
     #         '--no-validate',
     #         '--work-dir', './results/retinanet_hbb_tv'
     #         ]
-
-    args = ['./configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_coco.py',
+    #
+    args = ['./configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_dota.py',
             '--gpus', '2',
             '--no-validate',
             '--work-dir', './results/faster_rcnn_hbb_tv'
             ]
+    args = ['./configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_dota_test.py',
+            '--gpus', '2',
+            '--no-validate',
+            '--work-dir', './results/faster_rcnn_hbb_tv'
+            ]
+    # args = ['./configs/DOTA_hbb/dh_faster_rcnn_r50_fpn_2x_dota.py',
+    #         '--gpus', '2',
+    #         '--no-validate',
+    #         '--work-dir', './results/dh_faster_rcnn_hbb_tv'
+    #         ]
+
     args = parse_args(args)
     print(args)
 
