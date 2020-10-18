@@ -1,5 +1,5 @@
 build
-polyiou_wrap.cxx
+# polyiou_wrap.cxx
 .idea/DOTAPreprocess.iml
 *.so
 *.jpg
