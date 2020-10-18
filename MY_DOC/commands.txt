@@ -9,11 +9,6 @@ git clone https://git.sdut.me/floatingstarZ/mmd_rs.git
 
 
 
-
-
-
-
-
 # 1. 添加用户
 adduser BBB
 另外有一个useradd BBB，两个不一样
