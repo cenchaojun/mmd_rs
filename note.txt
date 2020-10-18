@@ -1,0 +1,18 @@
+retina改动的地方：
+1. config：MaxIoUAssignerCy
+2. AnchorGenerator中的gen_single_level_base_anchors改动，变化了shift
+3. AnchorHead中的loss
+4. delta_xywh_bbox_coder.py中的bbox2delta
+
+
+最终发现是train_ad中的问题，实际中只使用了一张卡上的模型，导致应该在其余卡上的数据没有被使用
+
+ad后缀为AerialDetection中的实现
+rs后缀为修改后的原版的retinanet。
+192.168.170.1       25port
+192.168.170.2       26port
+192.168.170.4       27port
+
+
+retinanet_hbb_tv：      192.168.170.1
+faster_rcnn_hbb_tv：    192.168.170.4
