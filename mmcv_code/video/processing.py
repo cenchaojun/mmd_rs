@@ -19,7 +19,7 @@ def convert_video(in_file,
 
         `ffmpeg -y <pre_options> -i <in_file> <options> <out_file>`
 
-    Options(kwargs) are mapped to ffmpeg commands with the following rules:
+    Options(kwargs) are mapped to ffmpeg commands.txt with the following rules:
 
     - key=val: "-key val"
     - key=True: "-key"

@@ -1,0 +1,67 @@
+1. 初始化仓库
+git init
+
+2. 添加文件
+git add C.py
+
+3. 提交至仓库
+git commit -m "Info"
+
+4. 查看仓库与本地的不一致地方
+git diff
+提交后，用git diff HEAD -- file_name命令
+可以查看工作区和版本库里面最新版本的区别：
+
+
+
+5. 查看状态
+git status
+
+6. 查看日志
+全：git log
+简易：git log --pretty=oneline
+
+7. 回退版本（git reset --hard commit_id）
+上一版本
+git reset --hard HEAD^
+其余版本
+git reset --hard 版本号（版本号用git log查看）
+
+8. 查看每一次记录
+git reflog
+其实在.git中的logs也能找到
+
+9. git 的流程
+工作区 ->add（添加） -> 
+暂存区 -> commit（提交所有修改，清空暂存区）
+ ->分支
+
+10.撤销工作区（file文件）的修改
+git checkout -- file
+如果之前add了，回退到add的版本
+如果没有add，那么回退到与版本库相同的版本。如果该文件被删除了，也能直接回退到与版本库相同的版本
+
+11.撤销暂存区的修改
+git reset HEAD file
+
+12. 从版本库中删除文件
+git rm file，之后git commit
+如果想删除远程仓库的文件，也是先rm，再commit，最后push就行
+
+13. 远程
+
+14. ssh的设置
+
+需要先在本地设置ssh，之后在github上添加ssh key，然后才能push
+ ssh-keygen -t rsa -C "alexhzy@126.com"
+ssh的key在C:\Users\FS\.ssh中。详细看教程
+
+远程库的名字就是origin。
+git remote add origin https://github.com/floatingstarZ/git_test.git
+git push -u（第一次） origin master
+
+15. git push
+把本地master分支的最新修改推送至GitHub
+git push origin master
+更简单的，git push就行
+

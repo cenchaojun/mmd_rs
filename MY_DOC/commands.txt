@@ -1,0 +1,74 @@
+git remote add origin https://github.com/floatingstarZ/mmd_rs.git
+
+博客：
+https://blog.csdn.net/weixin_42886104/article/details/106454331
+使用镜像：
+git clone https://github.com.cnpmjs.org/floatingstarZ/mmd_rs.git
+镜像2：
+git clone https://git.sdut.me/floatingstarZ/mmd_rs.git
+
+
+
+
+
+
+
+
+# 1. 添加用户
+adduser BBB
+另外有一个useradd BBB，两个不一样
+sudo usermod -aG sudo BBB
+
+# 2. 软连接
+ln -s ../../data ./data
+ln -s ../../data/mmdet_results/ ./results
+ln -s ../../data/intermediate_results/ ./intermediate_results
+ln -s ../../data/mmdet_checkpoints/ ./checkpoints
+
+ # 3. SCP命令
+scp -r huangziyue@192.168.140.40:./data/ ./data
+
+# 4. mmd使用
+CUDA_VISIBLE_DEVICES=8 python ./tools/test.py ./configs/retinanet_r50_fpn_1x_AddHead.py ./results/Retina_50_AddHead/latest.pth --out RESULT_Retina_r50_AddHead.pkl --json_out RESULT_Retina_r50_AddHead --eval bbox
+
+CUDA_VISIBLE_DEVICES=8 python ./tools/train.py ./configs/DOTA/retinanet_obb_r50_fpn_2x_dota.py --gpus 1 --workdir ./results/retinanet_obb
+
+
+CUDA_VISIBLE_DEVICES=8 python ./tools/train.py ./configs/retinanet/retinanet_r50_fpn_1x_coco.py --gpus 1 --work-dir ./results/retinanet_test
+
+
+# 5. ssh
+- 在A和B使用ssh-keygen -t rsa生成ssh的密钥
+- 在B中，scp username@IP:./.ssh/id_rsa.pub ./.ssh/authorized_keys，
+- 如果B中已经有authorized_keys的话
+- scp username@IP:./.ssh/id_rsa.pub ./.ssh/b.pub
+- cat ./b.pub >> ./authorized_keys，将其添加到最后
+- 这样A在访问B的时候就可以不用密码了。
+
+# 6. 创建文件
+1、vi
+
+vi 1.txt 会直接创建并打开一个文件1.txt
+
+2、touch
+
+touch的作用是更改一个文件或目录的时间。touch 2.txt 如果2.txt不存在，则创建空文件2.txt
+
+3、echo
+
+echo “abcd” > 3.txt 可以直接创建文件3.txt并将abcd写入。
+
+4、less 、more 、cat
+
+三者都是将文件内容输出到标准输出，其中less和more可以分页显示，cat是显示全部。
+
+三者可以根据已经存在的文件创建新的文件。假设已经存在文件1.txt。
+
+cat 1.txt > 2.txt
+
+less 1.txt > 3.txt
+
+more 1.txt > 4.txt
+
+此时创建的文件内容都和1.txt中文件内容相同。
+
