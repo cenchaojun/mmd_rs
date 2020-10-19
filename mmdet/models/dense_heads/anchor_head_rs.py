@@ -52,7 +52,7 @@ class AnchorHeadRS(BaseDenseHead, BBoxTestMixin):
                      type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0),
                  train_cfg=None,
                  test_cfg=None):
-        super(AnchorHead, self).__init__()
+        super(AnchorHeadRS, self).__init__()
         self.in_channels = in_channels
         self.num_classes = num_classes
         self.feat_channels = feat_channels
