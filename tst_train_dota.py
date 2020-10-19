@@ -115,10 +115,10 @@ def main():
     #         '--work-dir', './results/fcos_hbb_tv'
     #         ]
 
-    args = ['./configs/DOTA_hbb/atss_r50_fpn_2x_dota.py',
+    args = ['./configs/DOTA_hbb/fovea_r50_fpn_4x4_2x_dota.py',
             '--gpus', '1',
             '--no-validate',
-            '--work-dir', './results/atss_hbb_tv_test'
+            '--work-dir', './results/fovea_hbb_tv_test'
             ]
 
     args = parse_args(args)
