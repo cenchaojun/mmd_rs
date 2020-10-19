@@ -82,17 +82,17 @@ def parse_args(args=''):
 
 def main():
 
-    # args = ['./configs/DOTA_hbb/retinanet_r50_fpn_2x_dota.py',
-    #         '--gpus', '2',
-    #         '--no-validate',
-    #         '--work-dir', './results/retinanet_hbb_tv'
-    #         ]
-    #
-    args = ['./configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_dota.py',
+    args = ['./configs/DOTA_hbb/retinanet_r50_fpn_2x_dota.py',
             '--gpus', '2',
             '--no-validate',
-            '--work-dir', './results/faster_rcnn_hbb_tv'
+            '--work-dir', './results/retinanet_hbb_tv'
             ]
+    #
+    # args = ['./configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_dota.py',
+    #         '--gpus', '2',
+    #         '--no-validate',
+    #         '--work-dir', './results/faster_rcnn_hbb_tv'
+    #         ]
     # args = ['./configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_dota_test.py',
     #         '--gpus', '2',
     #         '--no-validate',
