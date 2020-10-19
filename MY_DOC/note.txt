@@ -26,4 +26,8 @@ fcos        .4
 atss        .1
 
 fovea       .1
+fsaf        .1
+
+gfl         .4
+
 
