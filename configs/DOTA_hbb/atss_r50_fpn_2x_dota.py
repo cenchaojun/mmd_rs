@@ -1,6 +1,7 @@
 _base_ = [
-    '../_base_/datasets/coco_detection.py',
-    '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
+    '../_base_/datasets/DOTA_train_val_hbb.py',
+    '../_base_/schedules/schedule_2x_rs.py',
+    '../_base_/default_runtime.py'
 ]
 model = dict(
     type='ATSS',
@@ -23,7 +24,7 @@ model = dict(
         num_outs=5),
     bbox_head=dict(
         type='ATSSHead',
-        num_classes=80,
+        num_classes=15,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
@@ -53,10 +54,19 @@ train_cfg = dict(
     pos_weight=-1,
     debug=False)
 test_cfg = dict(
-    nms_pre=1000,
+    nms_pre=2000,
     min_bbox_size=0,
     score_thr=0.05,
     nms=dict(type='nms', iou_threshold=0.6),
-    max_per_img=100)
+    max_per_img=2000)
 # optimizer
 optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
+optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
+# learning policy
+lr_config = dict(
+    policy='step',
+    warmup='linear',
+    warmup_iters=500,
+    warmup_ratio=1.0/3,
+    step=[16, 22])
+total_epochs = 24
