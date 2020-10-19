@@ -25,4 +25,5 @@ cascade     .4
 fcos        .4
 atss        .1
 
-fovea
+fovea       .1
+
