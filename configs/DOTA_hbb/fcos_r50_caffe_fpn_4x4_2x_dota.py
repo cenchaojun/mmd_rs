@@ -59,10 +59,13 @@ test_cfg = dict(
     score_thr=0.05,
     nms=dict(type='nms', iou_threshold=0.5),
     max_per_img=2000)
+data = dict(
+    samples_per_gpu=4,
+    workers_per_gpu=4)
 
 
 optimizer = dict(
-    lr=0.01, paramwise_cfg=dict(bias_lr_mult=2., bias_decay_mult=0.))
+    lr=0.05, paramwise_cfg=dict(bias_lr_mult=2., bias_decay_mult=0.))
 optimizer_config = dict(
     _delete_=True, grad_clip=dict(max_norm=35, norm_type=2))
 # learning policy
@@ -73,3 +76,10 @@ lr_config = dict(
     warmup_ratio=1.0 / 3,
     step=[8, 11])
 total_epochs = 24
+
+log_config = dict(
+    interval=500,
+    hooks=[
+        dict(type='TextLoggerHook'),
+        # dict(type='TensorboardLoggerHook')
+    ])
