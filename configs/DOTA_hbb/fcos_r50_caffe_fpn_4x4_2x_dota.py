@@ -78,7 +78,7 @@ lr_config = dict(
 total_epochs = 24
 
 log_config = dict(
-    interval=500,
+    interval=50,
     hooks=[
         dict(type='TextLoggerHook'),
         # dict(type='TensorboardLoggerHook')
