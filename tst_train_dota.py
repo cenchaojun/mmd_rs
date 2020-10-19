@@ -1,7 +1,7 @@
 import argparse
 import copy
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '2,3'
+os.environ["CUDA_VISIBLE_DEVICES"] = '8'
 
 import os.path as osp
 import time
@@ -87,11 +87,11 @@ def main():
     #         '--no-validate',
     #         '--work-dir', './results/retinanet_hbb_tv'
     #         ]
-    args = ['./configs/DOTA_hbb/retinanet_r50_fpn_2x_dota_org_fix.py',
-            '--gpus', '2',
-            '--no-validate',
-            '--work-dir', './results/retinanet_hbb_tv_org_fix'
-            ]
+    # args = ['./configs/DOTA_hbb/retinanet_r50_fpn_2x_dota_org_fix.py',
+    #         '--gpus', '2',
+    #         '--no-validate',
+    #         '--work-dir', './results/retinanet_hbb_tv_org_fix'
+    #         ]
     #
     # args = ['./configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_dota.py',
     #         '--gpus', '2',
@@ -108,6 +108,12 @@ def main():
     #         '--no-validate',
     #         '--work-dir', './results/dh_faster_rcnn_hbb_tv'
     #         ]
+
+    args = ['./configs/DOTA_hbb/fcos_r50_caffe_fpn_4x4_2x_dota.py',
+            '--gpus', '1',
+            '--no-validate',
+            '--work-dir', './results/fcos_hbb_tv'
+            ]
 
     args = parse_args(args)
     print(args)

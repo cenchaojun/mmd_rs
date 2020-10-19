@@ -1,5 +1,6 @@
 _base_ = [
     '../_base_/datasets/DOTA_train_val_hbb.py',
+    '../_base_/schedules/schedule_2x_rs.py'
     '../_base_/default_runtime.py'
 ]
 # model settings
@@ -26,7 +27,7 @@ model = dict(
         relu_before_extra_convs=True),
     bbox_head=dict(
         type='FCOSHead',
-        num_classes=80,
+        num_classes=15,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
@@ -53,11 +54,11 @@ train_cfg = dict(
     pos_weight=-1,
     debug=False)
 test_cfg = dict(
-    nms_pre=1000,
+    nms_pre=2000,
     min_bbox_size=0,
     score_thr=0.05,
     nms=dict(type='nms', iou_threshold=0.5),
-    max_per_img=100)
+    max_per_img=2000)
 
 
 optimizer = dict(
@@ -72,53 +73,3 @@ lr_config = dict(
     warmup_ratio=1.0 / 3,
     step=[8, 11])
 total_epochs = 24
-
-
-
-#############################################
-# img_norm_cfg = dict(
-#     mean=[102.9801, 115.9465, 122.7717], std=[1.0, 1.0, 1.0], to_rgb=False)
-# train_pipeline = [
-#     dict(type='LoadImageFromFile'),
-#     dict(type='LoadAnnotations', with_bbox=True),
-#     dict(type='Resize', img_scale=(1333, 800), keep_ratio=True),
-#     dict(type='RandomFlip', flip_ratio=0.5),
-#     dict(type='Normalize', **img_norm_cfg),
-#     dict(type='Pad', size_divisor=32),
-#     dict(type='DefaultFormatBundle'),
-#     dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
-# ]
-# test_pipeline = [
-#     dict(type='LoadImageFromFile'),
-#     dict(
-#         type='MultiScaleFlipAug',
-#         img_scale=(1333, 800),
-#         flip=False,
-#         transforms=[
-#             dict(type='Resize', keep_ratio=True),
-#             dict(type='RandomFlip'),
-#             dict(type='Normalize', **img_norm_cfg),
-#             dict(type='Pad', size_divisor=32),
-#             dict(type='ImageToTensor', keys=['img']),
-#             dict(type='Collect', keys=['img']),
-#         ])
-# ]
-# data = dict(
-#     samples_per_gpu=4,
-#     workers_per_gpu=4,
-#     train=dict(pipeline=train_pipeline),
-#     val=dict(pipeline=test_pipeline),
-#     test=dict(pipeline=test_pipeline))
-# # optimizer
-# optimizer = dict(
-#     lr=0.01, paramwise_cfg=dict(bias_lr_mult=2., bias_decay_mult=0.))
-# optimizer_config = dict(
-#     _delete_=True, grad_clip=dict(max_norm=35, norm_type=2))
-# # learning policy
-# lr_config = dict(
-#     policy='step',
-#     warmup='constant',
-#     warmup_iters=500,
-#     warmup_ratio=1.0 / 3,
-#     step=[8, 11])
-# total_epochs = 12
