@@ -15,4 +15,4 @@ rs后缀为修改后的原版的retinanet。
 
 
 retinanet_hbb_tv：      192.168.170.1
-faster_rcnn_hbb_tv：    192.168.170.4
+faster_rcnn_hbb_tv：    192.168.170.1
