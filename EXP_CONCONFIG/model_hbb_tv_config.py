@@ -48,3 +48,15 @@ cfgs = [
     gen_dict('res2net_hbb_tv',
              hbb_root + '/' + 'faster_rcnn_r2_101_fpn_2x_coco.py'),
 ]
+cfgs = {cfg.pop('name'):cfg for cfg in cfgs}
+
+def show_dict(d, n):
+    for k,v in d.items():
+        print('    ' * n, end='')
+        if isinstance(v, dict):
+            print(k, ':')
+            show_dict(v, n+1)
+        else:
+            print(k, ':', v)
+
+show_dict(cfgs, 0)
