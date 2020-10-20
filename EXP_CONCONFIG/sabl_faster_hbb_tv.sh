@@ -1,7 +1,7 @@
 cd ..
-CUDA_VISIBLE_DEVICES=2,3 python train_dota.py \
-./DOTA_configs/DOTA_hbb/atss_r50_fpn_2x_dota.py \
+CUDA_VISIBLE_DEVICES=6,7 python train_dota.py \
+./DOTA_configs/DOTA_hbb/sabl_faster_rcnn_r50_fpn_2x_dota.py \
 --gpus 2 \
 --no-validate \
---work-dir ./results/atss_hbb_tv
+--work-dir ./results/sabl_faster_rcnn_hbb_tv
 
