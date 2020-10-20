@@ -1,14 +1,15 @@
 _base_ = [
     '../_base_/models/retinanet_r50_fpn.py',
-    '../_base_/datasets/coco_detection.py',
-    '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
+    '../_base_/datasets/DOTA_train_val_hbb.py',
+    '../_base_/schedules/schedule_2x_rs.py',
+    '../_base_/default_runtime.py'
 ]
 # model settings
 model = dict(
     bbox_head=dict(
         _delete_=True,
         type='SABLRetinaHead',
-        num_classes=80,
+        num_classes=15,
         in_channels=256,
         stacked_convs=4,
         feat_channels=256,
