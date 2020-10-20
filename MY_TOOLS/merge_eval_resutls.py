@@ -8,7 +8,7 @@ def merge_eval_res(root):
         return
     for f in os.listdir(root):
         fp = osp.join(root, f)
-        if osp.isdir(f):
+        if osp.isdir(fp):
             merge_eval_res(fp)
             continue
         if f == 'eval_results.txt':
