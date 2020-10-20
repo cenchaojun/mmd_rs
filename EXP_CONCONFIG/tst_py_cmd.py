@@ -18,7 +18,7 @@ def parse_args():
 if __name__ == '__main__':
     args = parse_args()
     print(args)
-    if int(args.c) == 1:
+    if args.c and int(args.c) == 1:
         show_dict(cfgs, 0)
     else:
         model = args.model
