@@ -30,4 +30,9 @@ fsaf        .1
 
 gfl         .4
 
-
+nas fpn      x
+pafpn
+regnet
+reppoints
+sabl
+res2net
