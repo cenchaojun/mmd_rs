@@ -1,0 +1,6 @@
+[解决]GPU显存未释放问题
+https://www.jianshu.com/p/0d8ea6ca332a
+fuser -v /dev/nvidia*
+nvidia-smi
+pmap -d PID
+kill -9 PID
