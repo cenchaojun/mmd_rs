@@ -18,34 +18,34 @@ retinanet_hbb_tv：      192.168.170.1
 faster_rcnn_hbb_tv：    192.168.170.1
 
 
-todo:             train      test
-retina      .1      t
-faster      .1      t
-cascade     .4      t
-fcos        .4      y         y
-atss        .1      y         y
+todo:                   train      test
+retina          .1      y         t
+faster          .1      y         t
+cascade         .4      y         t
+fcos            .4      y         y
+atss            .1      y         y(very bad)
 
-fovea       .1      y         y
-fsaf        .1      y         y
+fovea           .1      y         y
+fsaf            .1      y         y
 
-gfl         .4      y         y
+gfl             .4      y         y
 
-nas fpn      x
-pafpn        x
-regnet       x
-pisa         x
-paa          x
-libra_retina   x
-libra_faster
-
-
-reppoints   .4      y         y
-sablfaster  .1      y         y
-sablretina  .4      y         y
-res2net      x      not ok , CUDA out of memory
+nas fpn         x
+pafpn           .1      t
+regnet          x
+pisa            x
+paa             .1      t
+libra_retina    .4      y         t
+libra_faster    .4      y         t
 
 
-ssd         .4
+reppoints       .4      y         y
+sablfaster      .1      y         y
+sablretina      .4      y         y
+res2net         x       not ok , CUDA out of memory
+
+
+ssd             .4
 yolov3_320
-yolov3_mt_416 .4
-yolov3_mt_608 .4
+yolov3_mt_416   .4
+yolov3_mt_608   .4      t

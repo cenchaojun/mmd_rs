@@ -61,6 +61,10 @@ cfgs = [
              hbb_root + '/' + 'libra_faster_rcnn_r50_fpn_2x_dota.py'),
     gen_dict('libra_retina_hbb_tv',
              hbb_root + '/' + 'libra_retinanet_r50_fpn_2x_dota.py'),
+    gen_dict('pafpn_hbb_tv',
+             hbb_root + '/' + 'faster_rcnn_r50_pafpn_2x_dota.py'),
+    gen_dict('paa_hbb_tv',
+             hbb_root + '/' + 'paa_r50_fpn_2x_dota.py'),
 ]
 cfgs = {cfg.pop('name'):cfg for cfg in cfgs}
 
