@@ -1,7 +1,9 @@
 _base_ = [
-    '../_base_/datasets/coco_detection.py',
-    '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
+    '../_base_/datasets/DOTA_train_val_hbb.py',
+    '../_base_/schedules/schedule_2x_rs.py',
+    '../_base_/default_runtime.py'
 ]
+
 model = dict(
     type='RepPointsDetector',
     pretrained='torchvision://resnet50',
@@ -23,7 +25,7 @@ model = dict(
         num_outs=5),
     bbox_head=dict(
         type='RepPointsHead',
-        num_classes=80,
+        num_classes=15,
         in_channels=256,
         feat_channels=256,
         point_feat_channels=256,
@@ -59,9 +61,9 @@ train_cfg = dict(
         pos_weight=-1,
         debug=False))
 test_cfg = dict(
-    nms_pre=1000,
+    nms_pre=2000,
     min_bbox_size=0,
     score_thr=0.05,
     nms=dict(type='nms', iou_threshold=0.5),
-    max_per_img=100)
+    max_per_img=2000)
 optimizer = dict(lr=0.01)
