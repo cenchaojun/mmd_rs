@@ -35,5 +35,5 @@ pafpn
 regnet
 reppoints   .4
 sablfaster  .4
-sablretina  .2
-res2net     .1
+sablretina  .4
+res2net     .1     not ok , CUDA out of memory
