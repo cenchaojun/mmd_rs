@@ -3,7 +3,7 @@
 
 import os
 import argparse
-from .model_hbb_tv_config import cfgs, show_dict
+from EXP_CONCONFIG.model_hbb_tv_config import cfgs, show_dict
 
 def parse_args():
     parser = argparse.ArgumentParser(
