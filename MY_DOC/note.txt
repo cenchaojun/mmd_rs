@@ -21,14 +21,14 @@ faster_rcnn_hbb_tv：    192.168.170.1
 todo:           train        test
 retina      .1      ok
 faster      .1      ok
-cascade     .4      ok
+cascade     .1      ok
 fcos        .4      ok
 atss        .1      ok
 
 fovea       .1      ok
 fsaf        .1      ok?
 
-gfl         .4
+gfl         .4     ok
 
 nas fpn      x
 pafpn

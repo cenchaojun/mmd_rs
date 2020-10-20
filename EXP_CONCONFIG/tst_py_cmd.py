@@ -23,12 +23,14 @@ if __name__ == '__main__':
     else:
         model = args.model
         if model not in cfgs.keys():
-            assert Exception("%s not in cfg keys: %s" %(model, str(list(cfgs.keys()))
+            raise Exception("%s not in cfg keys: %s" %(model, str(list(cfgs.keys()))
             ))
 
         cfg = cfgs[model]
         os.chdir('..')
         devs = [int(i) for i in args.d.split(',')]
+        if len(devs) == 0:
+            raise Exception('no deveices ')
         cmd = 'CUDA_VISIBLE_DEVICES=%s python train_dota.py ' \
               '%s ' \
               '--gpus %s --no-validate ' \

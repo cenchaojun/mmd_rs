@@ -58,5 +58,5 @@ def show_dict(d, n):
             show_dict(v, n+1)
         else:
             print(k, ':', v)
-
-show_dict(cfgs, 0)
+if __name__ == '__main__':
+    show_dict(cfgs, 0)
