@@ -9,7 +9,7 @@ _base_ = [
 model = dict(
     roi_head=dict(
         bbox_head=dict(
-            num_classes=80)))
+            num_classes=15)))
 # training and testing settings
 
 test_cfg = dict(

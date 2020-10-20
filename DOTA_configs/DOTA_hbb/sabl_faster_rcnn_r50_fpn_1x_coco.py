@@ -1,14 +1,15 @@
 _base_ = [
     '../_base_/models/faster_rcnn_r50_fpn.py',
-    '../_base_/datasets/coco_detection.py',
-    '../_base_/schedules/schedule_1x.py', '../_base_/default_runtime.py'
+    '../_base_/datasets/DOTA_train_val_hbb.py',
+    '../_base_/schedules/schedule_2x_rs.py',
+    '../_base_/default_runtime.py'
 ]
 model = dict(
     roi_head=dict(
         bbox_head=dict(
             _delete_=True,
             type='SABLHead',
-            num_classes=80,
+            num_classes=15,
             cls_in_channels=256,
             reg_in_channels=256,
             roi_feat_size=7,
@@ -32,3 +33,16 @@ model = dict(
                 type='CrossEntropyLoss', use_sigmoid=True, loss_weight=1.0),
             loss_bbox_reg=dict(type='SmoothL1Loss', beta=0.1,
                                loss_weight=1.0))))
+
+test_cfg = dict(
+    rpn=dict(
+        nms_across_levels=False,
+        nms_pre=6000,
+        nms_post=1000,
+        max_num=1000,
+        nms_thr=0.7,
+        min_bbox_size=0),
+    rcnn=dict(
+        score_thr=0.05,
+        nms=dict(type='nms', iou_threshold=0.5),
+        max_per_img=2000))
