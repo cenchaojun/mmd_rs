@@ -15,7 +15,7 @@ def gen_dict(name, config,
         name=name,
         config=config,
         work_dir=  work_dir,
-        cp_file=   work_dir+'/epoch_%d.pkl' % epoch,
+        cp_file=   work_dir+'/epoch_%d.pth' % epoch,
         result=    work_dir+'/' + result_name
     )
 
