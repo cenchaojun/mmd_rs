@@ -25,8 +25,8 @@ cascade     .4      t
 fcos        .4      y
 atss        .1      y
 
-fovea       .1      y
-fsaf        .1      y
+fovea       .1      y        y
+fsaf        .1      y        y
 
 gfl         .4     y
 

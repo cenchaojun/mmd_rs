@@ -199,11 +199,11 @@ def main():
                 eval_kwargs.pop(key, None)
             eval_kwargs.update(dict(metric=args.eval, **kwargs))
             ######################################
-            s = dataset.evaluate(outputs, **eval_kwargs)
+            s = str(dataset.evaluate(outputs, **eval_kwargs))
             work_dir = os.path.split(str(args.out))[0]
             eval_file = os.path.join(work_dir, 'eval_results.txt')
             with open(eval_file, 'wt+') as f:
-                f.write(s)
+                f.write(str(s))
             print(s)
             ######################################
 
