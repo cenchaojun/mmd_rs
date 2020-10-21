@@ -46,7 +46,17 @@ cfgs = [
     gen_dict('sabl_retina_hbb_tv',
              hbb_root + '/' + 'sabl_retinanet_r50_fpn_2x_dota.py'),
     gen_dict('res2net_hbb_tv',
-             hbb_root + '/' + 'faster_rcnn_r2_101_fpn_2x_coco.py'),
+             hbb_root + '/' + 'faster_rcnn_r2_101_fpn_2x_dota.py'),
+    gen_dict('ssd_300_hbb_tv',
+             hbb_root + '/' + 'ssd300_dota.py'),
+    gen_dict('ssd_512_hbb_tv',
+             hbb_root + '/' + 'ssd512_dota.py'),
+    gen_dict('yolov3_d53_320_hbb_tv',
+             hbb_root + '/' + 'yolov3_d53_320_273e_coco.py.py'),
+    gen_dict('yolov3_d53_mstrain-416_hbb_tvy',
+             hbb_root + '/' + 'yolov3_d53_mstrain-416_273e_coco.py'),
+    gen_dict('yolov3_d53_mstrain-608_hbb_tv',
+             hbb_root + '/' + 'yolov3_d53_mstrain-608_273e_coco.py'),
 ]
 cfgs = {cfg.pop('name'):cfg for cfg in cfgs}
 
