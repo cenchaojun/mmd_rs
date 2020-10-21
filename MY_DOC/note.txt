@@ -19,21 +19,21 @@ faster_rcnn_hbb_tv：    192.168.170.1
 
 
 todo:           train        test
-retina      .1      ok
-faster      .1      ok
-cascade     .1      ok
-fcos        .4      ok
-atss        .1      ok
+retina      .1      y
+faster      .1      y
+cascade     .4      t
+fcos        .4      y
+atss        .1      y
 
-fovea       .1      ok
-fsaf        .1      ok?
+fovea       .1      y
+fsaf        .1      y
 
-gfl         .4     ok
+gfl         .4     y
 
 nas fpn      x
 pafpn
 regnet
-reppoints   .4     ok
-sablfaster  .1     ok
-sablretina  .4     ok
+reppoints   .4     y
+sablfaster  .1     y
+sablretina  .4     y
 res2net     .1     not ok , CUDA out of memory
