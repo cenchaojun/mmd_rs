@@ -19,8 +19,8 @@ faster_rcnn_hbb_tv：    192.168.170.1
 
 
 todo:           train        test
-retina      .1      y
-faster      .1      y
+retina      .1      t
+faster      .1      t
 cascade     .4      t
 fcos        .4      y
 atss        .1      y
