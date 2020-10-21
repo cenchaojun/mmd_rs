@@ -33,6 +33,12 @@ gfl         .4      y         y
 nas fpn      x
 pafpn        x
 regnet       x
+pisa         x
+paa          x
+libra_retina   x
+libra_faster
+
+
 reppoints   .4      y         y
 sablfaster  .1      y         y
 sablretina  .4      y         y
@@ -41,5 +47,5 @@ res2net      x      not ok , CUDA out of memory
 
 ssd         .4
 yolov3_320
-yolov3_mt_416
-yolov3_mt_608
+yolov3_mt_416 .4
+yolov3_mt_608 .4
