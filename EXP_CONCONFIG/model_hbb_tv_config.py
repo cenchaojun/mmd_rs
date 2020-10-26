@@ -6,7 +6,7 @@
 
 root = '.'
 def gen_dict(name, config,
-             result_root='./results',
+             result_root='/home/huangziyue/data/mmdet_results',
              epoch=24,
              result_name='results.pkl'):
     work_dir = result_root + '/' + name

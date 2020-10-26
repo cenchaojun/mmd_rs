@@ -49,3 +49,7 @@ ssd             .4
 yolov3_320
 yolov3_mt_416   .4
 yolov3_mt_608   .4      t
+
+
+dota -> coco
+     -> split -> split(coco) -> model -> results split(coco) -> parse_results -> result merge(dota) -> result merge(coco)

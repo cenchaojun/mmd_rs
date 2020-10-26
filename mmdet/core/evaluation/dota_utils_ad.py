@@ -199,7 +199,11 @@ def HBBDet2Comp4(dataset, results):
     results_dict = {}
     for idx in range(len(dataset)):
         # print('idx: ', idx, 'total: ', len(dataset))
-        filename = dataset.img_infos[idx]['filename']
+        if hasattr(dataset, 'img_infos'):
+            filename = dataset.img_infos[idx]['filename']
+        else:
+            filename = dataset.data_infos[idx]['filename']
+
         result = results[idx]
         for label in range(len(result)):
             bboxes = result[label]
