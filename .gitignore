@@ -116,6 +116,7 @@ work_dirs/
 results/
 intermediate_results/
 checkpoints/
+*.xlsx
 
 # Pytorch
 *.pth
