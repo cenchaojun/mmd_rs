@@ -144,5 +144,15 @@ if __name__ == '__main__':
     pkl_file = './results/retinanet_hbb_tv/result.pkl'
     output_path = './results/retinanet_obb_tv'
     type = 'HBB'
-    parse_results(config_file, pkl_file, output_path, type)
+
+    from EXP_CONCONFIG.model_hbb_tv_config import cfgs
+    for cfg in cfgs:
+        config_file = cfg['config']
+        pkl_file = cfg['result']
+        output_path = cfg['work_dir']
+
+        if os.path.exists(output_path):
+            parse_results(config_file, pkl_file, output_path, type)
+        else:
+            print('')
 

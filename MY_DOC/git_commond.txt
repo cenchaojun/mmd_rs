@@ -65,3 +65,5 @@ git push -u（第一次） origin master
 git push origin master
 更简单的，git push就行
 
+16. git reset --hard
+重设头部，
