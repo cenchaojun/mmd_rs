@@ -146,7 +146,7 @@ if __name__ == '__main__':
     type = 'HBB'
 
     from EXP_CONCONFIG.model_hbb_tv_config import cfgs
-    for cfg in cfgs:
+    for cfg in cfgs.values():
         config_file = cfg['config']
         pkl_file = cfg['result']
         output_path = cfg['work_dir']
