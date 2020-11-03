@@ -151,7 +151,8 @@ if __name__ == '__main__':
         pkl_file = cfg['result']
         output_path = cfg['work_dir']
 
-        if os.path.exists(output_path):
+        if os.path.exists(output_path) and \
+            os.path.exists(pkl_file):
             parse_results(config_file, pkl_file, output_path, type)
         else:
             print('')
