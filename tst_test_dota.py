@@ -1,6 +1,9 @@
 import argparse
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '8'
+####################################################
+os.environ["CUDA_VISIBLE_DEVICES"] = '0'
+LOAD_RESULT=False
+####################################################
 
 import warnings
 
@@ -114,9 +117,9 @@ def parse_args(args=''):
 
 
 def main():
-    args = ['./DOTA_configs/DOTA_hbb/paa_r50_fpn_2x_dota.py',
-            './results/paa_hbb_tv/epoch_24.pth',
-            '--out', './results/paa_hbb_tv/result.pkl',
+    args = ['./DOTA_configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_dota.py',
+            './results/faster_rcnn_hbb_tv/epoch_24.pth',
+            '--out', './results/faster_rcnn_hbb_tv/results.pkl',
             '--eval', 'bbox'
             ]
 
@@ -197,17 +200,26 @@ def main():
     else:
         model.CLASSES = dataset.CLASSES
 
-    if not distributed:
-        model = MMDataParallel(model, device_ids=[0])
-        outputs = single_gpu_test(model, data_loader, args.show, args.show_dir,
-                                  args.show_score_thr)
+    ###########################################################################
+    if not LOAD_RESULT:
+        if not distributed:
+            model = MMDataParallel(model, device_ids=[0])
+            outputs = single_gpu_test(model, data_loader, args.show, args.show_dir,
+                                      args.show_score_thr)
+        else:
+            model = MMDistributedDataParallel(
+                model.cuda(),
+                device_ids=[torch.cuda.current_device()],
+                broadcast_buffers=False)
+            outputs = multi_gpu_test(model, data_loader, args.tmpdir,
+                                     args.gpu_collect)
     else:
-        model = MMDistributedDataParallel(
-            model.cuda(),
-            device_ids=[torch.cuda.current_device()],
-            broadcast_buffers=False)
-        outputs = multi_gpu_test(model, data_loader, args.tmpdir,
-                                 args.gpu_collect)
+        import pickle as pkl
+        with open(str(args.out), 'rb') as f:
+            outputs = pkl.load(f)
+            a = 0
+
+    ###########################################################################
 
     rank, _ = get_dist_info()
     if rank == 0:
@@ -224,6 +236,8 @@ def main():
                 eval_kwargs.pop(key, None)
             eval_kwargs.update(dict(metric=args.eval, **kwargs))
             ######################################
+            # add class wise
+            eval_kwargs['classwise']=True
             s = str(dataset.evaluate(outputs, **eval_kwargs))
             work_dir = os.path.split(str(args.out))[0]
             eval_file = os.path.join(work_dir, 'eval_results.txt')

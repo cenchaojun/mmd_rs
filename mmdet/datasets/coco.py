@@ -520,6 +520,9 @@ class CocoDataset(CustomDataset):
                     table_data = [headers]
                     table_data += [result for result in results_2d]
                     table = AsciiTable(table_data)
+                    ########################
+                    print(table.table)
+                    ########################
                     print_log('\n' + table.table, logger=logger)
 
                 if metric_items is None:

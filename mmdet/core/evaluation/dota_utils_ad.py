@@ -203,6 +203,8 @@ def HBBDet2Comp4(dataset, results):
             filename = dataset.img_infos[idx]['filename']
         else:
             filename = dataset.data_infos[idx]['filename']
+        if idx != 336:
+            continue
 
         result = results[idx]
         for label in range(len(result)):

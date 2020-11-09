@@ -14,7 +14,7 @@ from mmdet.core import results2json, coco_eval, \
 import argparse
 
 from mmdet import __version__
-from mmdet.datasets import get_dataset
+from mmdet.datasets import get_dataset, build_dataset
 from mmdet.apis import (train_detector, init_dist, get_root_logger,
                         set_random_seed)
 from mmdet.models import build_detector
@@ -63,7 +63,11 @@ def parse_results(config_file, resultfile, dstpath, type):
     cfg = Config.fromfile(config_file)
 
     data_test = cfg.data['test']
-    dataset = get_dataset(data_test)
+    # dataset = get_dataset(data_test)
+    cfg.data.test.test_mode = True
+
+    dataset = build_dataset(cfg.data.test)
+
     outputs = mmcv.load(resultfile)
     if type == 'OBB':
         #  dota1 has tested
@@ -140,9 +144,14 @@ if __name__ == '__main__':
     # output_path = './results/retinanet_obb_tv'
     # type = 'OBB'
 
-    config_file = './DOTA_configs/DOTA_hbb/retinanet_r50_fpn_2x_dota.py'
-    pkl_file = './results/retinanet_hbb_tv/results.pkl'
-    output_path = './results/retinanet_hbb_tv'
+    # config_file = './DOTA_configs/DOTA_hbb/retinanet_r50_fpn_2x_dota.py'
+    # pkl_file = './results/retinanet_hbb_tv/results.pkl'
+    # output_path = './results/retinanet_hbb_tv'
+
+
+    config_file = './DOTA_configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_dota.py'
+    pkl_file = './results/faster_rcnn_hbb_tv/results.pkl'
+    output_path = './results/faster_rcnn_hbb_tv'
     type = 'HBB'
     parse_results(config_file, pkl_file, output_path, type)
 
