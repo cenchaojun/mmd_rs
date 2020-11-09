@@ -243,8 +243,8 @@ def main():
     # annopath = r'D:/DataBackup/DOTA/val/labelTxt/{:s}.txt'# change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
     # imagesetfile = r'D:/DataBackup/DOTA/val/val_sets.txt'
     #
-    # detpath = r'../data/mmdet_results/' \
-    #           r'sabl_faster_rcnn_hbb_tv/Task2_results_nms/{:s}.txt'
+    detpath = r'../data/mmdet_results/' \
+               r'faster_rcnn_hbb_tv/Task2_results_nms/{:s}.txt'
     annopath = r'../data/dota/val/labelTxt/{:s}.txt'# change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
     imagesetfile = r'../data/dota/val/val_sets.txt'
 
