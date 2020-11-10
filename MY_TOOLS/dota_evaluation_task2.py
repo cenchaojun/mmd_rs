@@ -272,8 +272,8 @@ def evaluate(detpath, annopath, imagesetfile, eval_result_path):
              classname,
              ovthresh=0.5,
              use_07_metric=False)
-        recalls[classname] = np.max(rec)
-        precisions[classname] = ap
+        recalls[classname] = float(np.max(rec))
+        precisions[classname] = float(ap)
         if isinstance(rec, np.ndarray):
             rec = rec.tolist()
             prec = prec.tolist()
