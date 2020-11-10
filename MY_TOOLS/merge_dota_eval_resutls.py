@@ -3,7 +3,8 @@ import os
 import os.path as osp
 from copy import deepcopy
 import numpy as np
-results = dict()
+pre_results = dict()
+rec_results = dict()
 
 def cal_mean(d):
     vs = np.array(list(d.values()))
@@ -33,8 +34,8 @@ def get_eval_res(root):
                 r_pre.update(ps)
                 r_rec = dict(mean=cal_mean(rs))
                 r_rec.update(rs)
-            results[osp.split(root)[1] + '_P'] = r_pre
-            results[osp.split(root)[1] + '_R'] = r_rec
+            pre_results[osp.split(root)[1] ] = r_pre
+            rec_results[osp.split(root)[1]] = r_rec
 
 
 def merge_eval_res(rs):
@@ -52,20 +53,26 @@ def merge_eval_res(rs):
 # with open('../reuslts/retinanet_hbb_tv/eval_reuslts.txt', 'r') as f:
 #     r = eval(f.read())
 get_eval_res('../results')
-print(results)
-merged_results = merge_eval_res(results)
-print(merged_results)
+# print(results)
+pre_merged_results = merge_eval_res(pre_results)
+rec_merged_results = merge_eval_res(rec_results)
+# print(merged_results)
 
-n_model = len(merged_results['name'])
-for i, l in merged_results.items():
+
+n_model = len(pre_merged_results['name'])
+for i, l in pre_merged_results.items():
     assert len(l) == n_model
 
 import pandas as pd
-df = pd.DataFrame(merged_results,
+pre_df = pd.DataFrame(pre_merged_results,
                   index=range(0, n_model),
-                  columns=merged_results.keys())
+                  columns=pre_merged_results.keys())
+rec_df = pd.DataFrame(rec_merged_results,
+                  index=range(0, n_model),
+                  columns=rec_merged_results.keys())
 
 writer = pd.ExcelWriter('./eval_results.xlsx')#创建数据存放路径
-df.to_excel(writer)
+pre_df.to_excel(writer, sheet_name='Precision')
+rec_df.to_excel(writer, sheet_name='Recall')
 writer.save()#文件保存
 writer.close()#文件关闭
