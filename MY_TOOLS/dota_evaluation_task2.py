@@ -274,8 +274,10 @@ def evaluate(detpath, annopath, imagesetfile, eval_result_path):
              use_07_metric=False)
         recalls[classname] = np.max(rec)
         precisions[classname] = ap
-        if rec and prec:
-            full_data[classname] = dict(rec=rec.tolist(), prec=prec.tolist())
+        if isinstance(rec, np.ndarray):
+            rec = rec.tolist()
+            prec = prec.tolist()
+            full_data[classname] = dict(rec=rec, prec=prec)
         else:
             full_data[classname] = dict(rec=0, prec=0)
 
