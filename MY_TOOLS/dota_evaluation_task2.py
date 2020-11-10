@@ -274,7 +274,11 @@ def evaluate(detpath, annopath, imagesetfile, eval_result_path):
              use_07_metric=False)
         recalls[classname] = np.max(rec)
         precisions[classname] = ap
-        full_data[classname] = dict(rec=rec.tolist(), prec=prec.tolist())
+        if rec and prec:
+            full_data[classname] = dict(rec=rec.tolist(), prec=prec.tolist())
+        else:
+            full_data[classname] = dict(rec=0, prec=0)
+
 
         # print('rc: ', np.max(rec))
         map = map + ap
