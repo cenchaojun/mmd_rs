@@ -143,6 +143,8 @@ if __name__ == '__main__':
     # pkl_file = './results/retinanet_obb_tv/result.pkl'
     # output_path = './results/retinanet_obb_tv'
     # type = 'OBB'
+    os.chdir('../')
+
 
     config_file = './configs/DOTA_test/retinanet_obb_r50_fpn_2x_dota.py'
     pkl_file = './results/retinanet_hbb_tv/result.pkl'

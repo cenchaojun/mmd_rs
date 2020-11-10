@@ -240,7 +240,7 @@ def voc_eval(detpath,
     # print('check tp', tp)
 
 
-    print('npos num:', npos)
+    # print('npos num:', npos)
     fp = np.cumsum(fp)
     tp = np.cumsum(tp)
 
@@ -265,20 +265,20 @@ def evaluate(detpath, annopath, imagesetfile, eval_result_path):
         ###################
         # classname = 'ship'
         ###################
-        # print('classname:', classname)
+        print('classname:', classname)
         rec, prec, ap = voc_eval(detpath,
              annopath,
              imagesetfile,
              classname,
              ovthresh=0.5,
              use_07_metric=False)
-        recalls['classname'] = np.max(rec)
-        precisions['classname'] = ap
-        full_data['classname'] = dict(rec=rec, prec=prec)
+        recalls[classname] = np.max(rec)
+        precisions[classname] = ap
+        full_data[classname] = dict(rec=rec.tolist(), prec=prec.tolist())
 
         # print('rc: ', np.max(rec))
         map = map + ap
-        # print('ap: ', ap)
+        print('ap: ', ap)
         classaps.append(ap)
 
         ## uncomment to plot p-r curve for each category
@@ -292,7 +292,7 @@ def evaluate(detpath, annopath, imagesetfile, eval_result_path):
         map=map,
         precisions=precisions,
         recalls=recalls,
-        full_data=full_data
+        # full_data=full_data
     )
     import json
     with open(eval_result_path, 'wt+') as f:
@@ -304,6 +304,8 @@ def evaluate(detpath, annopath, imagesetfile, eval_result_path):
 
 
 if __name__ == '__main__':
+    os.chdir('../')
+
     annopath = r'./data/dota/val/labelTxt/{:s}.txt'# change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
     imagesetfile = r'./data/dota/val/val_sets.txt'
 
@@ -315,7 +317,8 @@ if __name__ == '__main__':
         eval_result_path = cfg['work_dir'] + '/dota_eval_results.json'
 
         if os.path.exists(cfg['Task2_results']):
-            print(name + ' Done!')
             evaluate(detpath, annopath, imagesetfile, eval_result_path)
+            print(name + ' Done!')
+
         else:
             print(name + ' Pass!')
