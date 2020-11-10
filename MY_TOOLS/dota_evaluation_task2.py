@@ -304,8 +304,8 @@ def evaluate(detpath, annopath, imagesetfile, eval_result_path):
 
 
 if __name__ == '__main__':
-    annopath = r'../data/dota/val/labelTxt/{:s}.txt'# change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
-    imagesetfile = r'../data/dota/val/val_sets.txt'
+    annopath = r'./data/dota/val/labelTxt/{:s}.txt'# change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
+    imagesetfile = r'./data/dota/val/val_sets.txt'
 
     from EXP_CONCONFIG.model_hbb_tv_config import cfgs
     for name, cfg in cfgs.items():
