@@ -300,6 +300,7 @@ def evaluate(detpath, annopath, imagesetfile, eval_result_path):
         recalls=recalls,
         # full_data=full_data
     )
+    print(result)
     import json
     with open(eval_result_path, 'wt+') as f:
         json.dump(result, f)
