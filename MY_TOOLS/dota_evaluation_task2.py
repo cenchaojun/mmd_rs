@@ -29,13 +29,35 @@ def parse_gt(filename):
                 object_struct['difficult'] = 0
             elif (len(splitline) == 10):
                 object_struct['difficult'] = int(splitline[9])
-            # object_struct['difficult'] = 0
-            object_struct['bbox'] = [int(float(splitline[0])),
-                                         int(float(splitline[1])),
-                                         int(float(splitline[4])),
-                                         int(float(splitline[5]))]
-            w = int(float(splitline[4])) - int(float(splitline[0]))
-            h = int(float(splitline[5])) - int(float(splitline[1]))
+            # object_struct['difficult'] = 0#
+            ############################################################
+            # object_struct['bbox'] = [int(float(splitline[0])),
+            #                              int(float(splitline[1])),
+            #                              int(float(splitline[4])),
+            #                              int(float(splitline[5]))]
+            #
+            # w = int(float(splitline[4])) - int(float(splitline[0]))
+            # h = int(float(splitline[5])) - int(float(splitline[1]))
+
+            x1, y1, x2, y2, x3, y3, x4, y4 = int(float(splitline[0])),\
+                                         int(float(splitline[1])),\
+                                         int(float(splitline[2])),\
+                                         int(float(splitline[3])),\
+                                         int(float(splitline[4])),\
+                                         int(float(splitline[5])),\
+                                         int(float(splitline[6])),\
+                                         int(float(splitline[7]))
+
+
+
+
+            xmin, ymin, xmax, ymax = min([x1, x2, x3, x4]), min([y1,y2,y3,y4]), \
+                                     max([x1, x2, x3, x4]), max([y1,y2,y3,y4])
+            object_struct['bbox'] = [xmin, ymin, xmax, ymax]
+            w = xmax - xmin
+            h = ymax - ymin
+            #############################################################
+
             object_struct['area'] = w * h
             #print('area:', object_struct['area'])
             # if object_struct['area'] < (15 * 15):
@@ -230,39 +252,33 @@ def voc_eval(detpath,
 
     return rec, prec, ap
 
-def main():
-    # detpath = r'E:\documentation\OneDrive\documentation\DotaEvaluation\evluation_task2\evluation_task2\faster-rcnn-nms_0.3_task2\nms_0.3_task\Task2_{:s}.txt'
-    # annopath = r'I:\dota\testset\ReclabelTxt-utf-8\{:s}.txt'
-    # imagesetfile = r'I:\dota\testset\va.txt'
-
-    # detpath = r'PATH_TO_BE_CONFIGURED/Task2_{:s}.txt'
-    # annopath = r'PATH_TO_BE_CONFIGURED/{:s}.txt'# change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
-    # imagesetfile = r'PATH_TO_BE_CONFIGURED/valset.txt'
-
-    detpath = r'./merged_results/{:s}.txt'
-    # annopath = r'D:/DataBackup/DOTA/val/labelTxt/{:s}.txt'# change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
-    # imagesetfile = r'D:/DataBackup/DOTA/val/val_sets.txt'
-    #
-    detpath = r'../data/mmdet_results/' \
-               r'faster_rcnn_hbb_tv/Task2_results_nms/{:s}.txt'
-    annopath = r'../data/dota/val/labelTxt/{:s}.txt'# change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
-    imagesetfile = r'../data/dota/val/val_sets.txt'
+def evaluate(detpath, annopath, imagesetfile, eval_result_path):
 
     classnames = ['plane', 'baseball-diamond', 'bridge', 'ground-track-field', 'small-vehicle', 'large-vehicle', 'ship', 'tennis-court',
                 'basketball-court', 'storage-tank',  'soccer-ball-field', 'roundabout', 'harbor', 'swimming-pool', 'helicopter']
     classaps = []
     map = 0
+    recalls = dict()
+    precisions = dict()
+    full_data = dict()
     for classname in classnames:
-        print('classname:', classname)
+        ###################
+        # classname = 'ship'
+        ###################
+        # print('classname:', classname)
         rec, prec, ap = voc_eval(detpath,
              annopath,
              imagesetfile,
              classname,
              ovthresh=0.5,
              use_07_metric=False)
+        recalls['classname'] = np.max(rec)
+        precisions['classname'] = ap
+        full_data['classname'] = dict(rec=rec, prec=prec)
+
+        # print('rc: ', np.max(rec))
         map = map + ap
-        #print('rec: ', rec, 'prec: ', prec, 'ap: ', ap)
-        print('ap: ', ap)
+        # print('ap: ', ap)
         classaps.append(ap)
 
         ## uncomment to plot p-r curve for each category
@@ -272,8 +288,34 @@ def main():
         # plt.plot(rec, prec)
         # plt.show()
     map = map/len(classnames)
+    result = dict(
+        map=map,
+        precisions=precisions,
+        recalls=recalls,
+        full_data=full_data
+    )
+    import json
+    with open(eval_result_path, 'wt+') as f:
+        json.dump(result, f)
+
     print('map:', map)
     classaps = 100*np.array(classaps)
     print('classaps: ', classaps)
+
+
 if __name__ == '__main__':
-    main()
+    annopath = r'../data/dota/val/labelTxt/{:s}.txt'# change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
+    imagesetfile = r'../data/dota/val/val_sets.txt'
+
+    from EXP_CONCONFIG.model_hbb_tv_config import cfgs
+    for name, cfg in cfgs.items():
+        # print(cfg)
+        output_path = cfg['work_dir']
+        detpath = cfg['Task2_results'] + '/{:s}.txt'
+        eval_result_path = cfg['work_dir'] + '/dota_eval_results.json'
+
+        if os.path.exists(cfg['Task2_results']):
+            print(name + ' Done!')
+            evaluate(detpath, annopath, imagesetfile, eval_result_path)
+        else:
+            print(name + ' Pass!')

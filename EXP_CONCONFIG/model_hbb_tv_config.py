@@ -16,7 +16,13 @@ def gen_dict(name, config,
         config=config,
         work_dir=  work_dir,
         cp_file=   work_dir+'/epoch_%d.pth' % epoch,
-        result=    work_dir+'/' + result_name
+        result=    work_dir+'/' + result_name,
+        Task2_results = work_dir + '/Task2_results_nms',
+        Task2_results_split = work_dir + '/Task2_results',
+        dota_eval_results=work_dir + '/dota_eval_results.json'
+
+
+
     )
 
 hbb_root = './DOTA_configs/DOTA_hbb'
