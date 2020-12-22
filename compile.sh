@@ -36,5 +36,5 @@ $PYTHON setup.py build_ext --inplace
 
 echo "Building cpu_nms..."
 cd ../../core/bbox
-$PYTHON setup_linux.py build_ext --inplace
+$PYTHON setup_linux_ad.py build_ext --inplace
 
