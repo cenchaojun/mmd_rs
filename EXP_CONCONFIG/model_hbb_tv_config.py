@@ -19,13 +19,12 @@ def gen_dict(name, config,
         result=    work_dir+'/' + result_name,
         Task2_results = work_dir + '/Task2_results_nms',
         Task2_results_split = work_dir + '/Task2_results',
-        dota_eval_results=work_dir + '/dota_eval_results.json'
-
-
-
+        dota_eval_results=work_dir + '/dota_eval_results.json',
+        type='HBB'
     )
 
 hbb_root = './DOTA_configs/DOTA_hbb'
+obb_root = './DOTA_configs/DOTA_obb'
 cfgs = [
     gen_dict('retinanet_hbb_tv_test',
              hbb_root + '/' + 'retinanet_r50_fpn_2x_dota.py'),
@@ -70,7 +69,7 @@ cfgs = [
     gen_dict('pafpn_hbb_tv',
              hbb_root + '/' + 'faster_rcnn_r50_pafpn_2x_dota.py'),
     gen_dict('paa_hbb_tv',
-             hbb_root + '/' + 'paa_r50_fpn_2x_dota.py'),
+             hbb_root + '/' + 'paa_r50_fpn_2x_dota.py')
 ]
 cfgs = {cfg.pop('name'):cfg for cfg in cfgs}
 

@@ -43,11 +43,15 @@ from .mask_rcnn_ad import MaskRCNNOld
 from .single_stage_ad import SingleStageDetectorAD
 from .retinanet_ad import RetinaNetAD
 
+from .single_stage_rs import SingleStageDetectorRS
+from .retinanet_rs import RetinaNetRS
+
 __all__.extend([
     'SingleStageDetectorRbbox','RetinaNetRbbox',
     'TwoStageDetectorRbbox', 'FasterRCNNOBB',
     'RoITransformer',
     'TwoStageDetectorOld',
     'MaskRCNNOld',
-    'single_stage_ad', 'retinanet_ad'
+    'SingleStageDetectorAD', 'RetinaNetAD',
+    'SingleStageDetectorRS', 'RetinaNetRS'
 ])

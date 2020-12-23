@@ -1,3 +1,11 @@
+# _base_ = [
+#     '../_base_/models/retinanet_r50_fpn.py',
+#     '../_base_/datasets/DOTA_train_val_obb.py',
+#     '../_base_/schedules/schedule_2x_rs.py',
+#     '../_base_/default_runtime.py'
+# ]
+
+
 # model settings
 model = dict(
     type='RetinaNetRbbox',
@@ -61,7 +69,7 @@ data_root = 'data/dota1_train_val_1024/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
-    imgs_per_gpu=2,
+    imgs_per_gpu=4,
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,

@@ -1,7 +1,7 @@
 import argparse
 import copy
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '8'
+os.environ["CUDA_VISIBLE_DEVICES"] = '4'
 
 import os.path as osp
 import time
@@ -115,12 +115,17 @@ def main():
     #         '--work-dir', './results/fcos_hbb_tv'
     #         ]
 
-    args = ['./configs/DOTA_hbb/fovea_r50_fpn_4x4_2x_dota.py',
+    args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_dota.py',
             '--gpus', '1',
             '--no-validate',
-            '--work-dir', './results/fovea_hbb_tv_test'
+            '--work-dir', './results/retinanet_obb_test'
             ]
-    #
+
+    # args = ['./DOTA_configs/DOTA_hbb/retinanet_r50_fpn_2x_dota.py',
+    #         '--gpus', '1',
+    #         '--no-validate',
+    #         '--work-dir', './results/retinanet_hbb_tv'
+    #         ]
     # args = ['./configs/DOTA_hbb/fsaf_r50_fpn_2x_dota.py',
     #         '--gpus', '1',
     #         '--no-validate',
