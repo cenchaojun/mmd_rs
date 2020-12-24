@@ -16,5 +16,6 @@ __all__ = [
 ###############################################################
 
 from .delta_xywh_bbox_coder_rs import DeltaXYWHBBoxCoderRS
-
-__all__.extend(['DeltaXYWHBBoxCoderRS'])
+from .delta_xywha_dbbox_coder_rs import DeltaXYWHARbboxCoderRS
+__all__.extend(['DeltaXYWHBBoxCoderRS',
+                'DeltaXYWHARbboxCoderRS'])

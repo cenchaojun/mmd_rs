@@ -37,9 +37,9 @@ model = dict(
             ratios=[0.5, 1.0, 2.0],
             strides=[8, 16, 32, 64, 128]),
         bbox_coder=dict(
-            type='DeltaXYWHBBoxCoder',
-            target_means=[.0, .0, .0, .0],
-            target_stds=[1.0, 1.0, 1.0, 1.0]),
+            type='DeltaXYWHARbboxCoderRS',
+            target_means=[.0, .0, .0, .0, .0],
+            target_stds=[1.0, 1.0, 1.0, 1.0, 1.0]),
         loss_cls=dict(
             type='FocalLoss',
             use_sigmoid=True,
@@ -55,6 +55,7 @@ train_cfg = dict(
         neg_iou_thr=0.4,
         min_pos_iou=0,
         ignore_iof_thr=-1),
+    sampler=dict(type='RbboxSamplerRS'),
     allowed_border=-1,
     pos_weight=-1,
     debug=False)
@@ -77,3 +78,10 @@ lr_config = dict(
     warmup_ratio=1.0/3,
     step=[16, 22])
 total_epochs = 24
+
+log_config = dict(
+    interval=50,
+    hooks=[
+        dict(type='TextLoggerHook'),
+        # dict(type='TensorboardLoggerHook')
+    ])

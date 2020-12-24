@@ -9,6 +9,7 @@ from mmdet.core import (anchor_inside_flags, build_anchor_generator,
 from ..builder import HEADS, build_loss
 from .base_dense_head_rs import BaseDenseHeadRS
 from .dense_test_mixins import BBoxTestMixin
+from mmdet.utils.dbbox_transform import cv2_mask2rbbox
 
 
 @HEADS.register_module()
@@ -41,8 +42,8 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
                      strides=[4, 8, 16, 32, 64]),
                  bbox_coder=dict(
                      type='DeltaXYWHBBoxCoder',
-                     target_means=(.0, .0, .0, .0),
-                     target_stds=(1.0, 1.0, 1.0, 1.0)),
+                     target_means=(.0, .0, .0, .0, 0.0),
+                     target_stds=(1.0, 1.0, 1.0, 1.0, 0.0)),
                  reg_decoded_bbox=False,
                  loss_cls=dict(
                      type='CrossEntropyLoss',
@@ -78,10 +79,14 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
         if self.train_cfg:
             self.assigner = build_assigner(self.train_cfg.assigner)
             # use PseudoSampler when sampling is False
-            if self.sampling and hasattr(self.train_cfg, 'sampler'):
-                sampler_cfg = self.train_cfg.sampler
-            else:
-                sampler_cfg = dict(type='PseudoSampler')
+            #####################################################
+            # if self.sampling and hasattr(self.train_cfg, 'sampler'):
+            #     sampler_cfg = self.train_cfg.sampler
+            # else:
+            #     sampler_cfg = dict(type='PseudoSampler')
+            #####################################################
+            assert hasattr(self.train_cfg, 'sampler')
+            sampler_cfg = self.train_cfg.sampler
             self.sampler = build_sampler(sampler_cfg, context=self)
         self.fp16_enabled = False
 
@@ -208,6 +213,8 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
                 num_total_pos (int): Number of positive samples in all images
                 num_total_neg (int): Number of negative samples in all images
         """
+        ## 使用水平框的gt_bboxes来进行anchor的assign
+        ## 使用gt_masks来生成gt_rbboxes，并进行target的计算。
         inside_flags = anchor_inside_flags(flat_anchors, valid_flags,
                                            img_meta['img_shape'][:2],
                                            self.train_cfg.allowed_border)
@@ -223,12 +230,18 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
         # 28 pos , iou > 0.5 -> assign_result.gt_inds = 1
         # 79 bad pos , 0.4< iou < 0.5 -> assign_result.gt_inds = -1
         # others, iou < 0.4 -> assign_result.gt_inds = 0
+        ########################################################
+        # gt_masks = [gtm for gtm in gt_masks.masks]
+        gt_rbboxes = cv2_mask2rbbox(gt_masks)
+        gt_rbboxes = gt_bboxes.new_tensor(gt_rbboxes)
+
         sampling_result = self.sampler.sample(assign_result, anchors,
-                                              gt_bboxes)
+                                              gt_rbboxes)
+        ########################################################
 
         num_valid_anchors = anchors.shape[0]
-        bbox_targets = torch.zeros_like(anchors)
-        bbox_weights = torch.zeros_like(anchors)
+        bbox_targets = anchors.new_zeros((anchors.shape[0], 5))
+        bbox_weights = anchors.new_zeros((anchors.shape[0], 5))
         labels = anchors.new_full((num_valid_anchors, ),
                                   self.num_classes,
                                   dtype=torch.long)
@@ -271,6 +284,9 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
             bbox_weights = unmap(bbox_weights, num_total_anchors, inside_flags)
         # if torch.sum(torch.isinf(bbox_targets).flatten()) > 0:
         #     print(bbox_targets)
+
+        if torch.sum(torch.isinf(bbox_targets)):
+            raise AssertionError
 
         return (labels, label_weights, bbox_targets, bbox_weights, pos_inds,
                 neg_inds, sampling_result)
@@ -413,9 +429,9 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
         loss_cls = self.loss_cls(
             cls_score, labels, label_weights, avg_factor=num_total_samples)
         # regression loss
-        bbox_targets = bbox_targets.reshape(-1, 4)
-        bbox_weights = bbox_weights.reshape(-1, 4)
-        bbox_pred = bbox_pred.permute(0, 2, 3, 1).reshape(-1, 4)
+        bbox_targets = bbox_targets.reshape(-1, 5)
+        bbox_weights = bbox_weights.reshape(-1, 5)
+        bbox_pred = bbox_pred.permute(0, 2, 3, 1).reshape(-1, 5)
         if self.reg_decoded_bbox:
             anchors = anchors.reshape(-1, 4)
             bbox_pred = self.bbox_coder.decode(anchors, bbox_pred)
@@ -424,6 +440,12 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
             bbox_targets,
             bbox_weights,
             avg_factor=num_total_samples)
+
+        # if torch.isinf(loss_bbox):
+        #     print(loss_bbox)
+        #     a = 0
+        #     raise AssertionError
+
         return loss_cls, loss_bbox
 
     @force_fp32(apply_to=('cls_scores', 'bbox_preds'))
@@ -466,11 +488,21 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
         # )
         # cls_scores = a['cls_scores']
         # bbox_preds = a['bbox_preds']
-        for gtb in gt_bboxes:
-            gtb[:, 2] -= 1
-            gtb[:, 3] -= 1
+
+        gt_masks = [gtm.masks for gtm in gt_masks]
+        for i, gtb in enumerate(gt_bboxes):
+            neg_inds = torch.logical_or(gtb[:, 2] - gtb[:, 0] <= 1,
+                                        gtb[:, 3] - gtb[:, 1] <= 1)
+
             gtb[gtb[:, 2] - gtb[:, 0] <= 0, 2] += 1
             gtb[gtb[:, 3] - gtb[:, 1] <= 0, 3] += 1
+            pos_inds = torch.logical_not(neg_inds)
+            np_pos_inds = pos_inds.detach().cpu().numpy()
+            gt_bboxes[i] = gtb[pos_inds]
+            gt_masks[i] = gt_masks[i][np_pos_inds]
+            gt_labels[i] = gt_labels[i][pos_inds]
+
+            # print(torch.sum(neg_inds))
 
         ############################################
         featmap_sizes = [featmap.size()[-2:] for featmap in cls_scores]
@@ -519,7 +551,7 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
         # for l in losses_bbox:
         #     if torch.isinf(l):
         #         print(losses_bbox)
-        #         a = 0
+        #         raise AssertionError
         return dict(loss_cls=losses_cls, loss_bbox=losses_bbox)
 
     @force_fp32(apply_to=('cls_scores', 'bbox_preds'))
@@ -555,30 +587,6 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
                 corresponding box.
 
         Example:
-            >>> import mmcv
-            >>> self = AnchorHead(
-            >>>     num_classes=9,
-            >>>     in_channels=1,
-            >>>     anchor_generator=dict(
-            >>>         type='AnchorGenerator',
-            >>>         scales=[8],
-            >>>         ratios=[0.5, 1.0, 2.0],
-            >>>         strides=[4,]))
-            >>> img_metas = [{'img_shape': (32, 32, 3), 'scale_factor': 1}]
-            >>> cfg = mmcv.Config(dict(
-            >>>     score_thr=0.00,
-            >>>     nms=dict(type='nms', iou_thr=1.0),
-            >>>     max_per_img=10))
-            >>> feat = torch.rand(1, 1, 3, 3)
-            >>> cls_score, bbox_pred = self.forward_single(feat)
-            >>> # note the input lists are over different levels, not images
-            >>> cls_scores, bbox_preds = [cls_score], [bbox_pred]
-            >>> result_list = self.get_bboxes(cls_scores, bbox_preds,
-            >>>                               img_metas, cfg)
-            >>> det_bboxes, det_labels = result_list[0]
-            >>> assert len(result_list) == 1
-            >>> assert det_bboxes.shape[1] == 5
-            >>> assert len(det_bboxes) == len(det_labels) == cfg.max_per_img
         """
         assert len(cls_scores) == len(bbox_preds)
         num_levels = len(cls_scores)
@@ -660,7 +668,7 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
                 scores = cls_score.sigmoid()
             else:
                 scores = cls_score.softmax(-1)
-            bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 4)
+            bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 5)
             nms_pre = cfg.get('nms_pre', -1)
             if nms_pre > 0 and scores.shape[0] > nms_pre:
                 # Get maximum scores for foreground classes.

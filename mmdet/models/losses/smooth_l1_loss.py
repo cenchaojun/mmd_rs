@@ -131,6 +131,18 @@ class L1Loss(nn.Module):
         assert reduction_override in (None, 'none', 'mean', 'sum')
         reduction = (
             reduction_override if reduction_override else self.reduction)
-        loss_bbox = self.loss_weight * l1_loss(
-            pred, target, weight, reduction=reduction, avg_factor=avg_factor)
+        # loss_bbox = self.loss_weight * l1_loss(
+        #     pred, target, weight, reduction=reduction, avg_factor=avg_factor)
+
+        loss = torch.abs(pred - target)
+        loss = loss * weight
+        loss = loss[weight > 0]
+        loss_bbox = self.loss_weight * loss.sum() / avg_factor
+
+        # if torch.isinf(loss_bbox):
+        #     print(loss_bbox)
+        #     print(loss)
+        #     a = 0
+        #     raise AssertionError
+
         return loss_bbox
