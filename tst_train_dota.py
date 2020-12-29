@@ -1,7 +1,7 @@
 import argparse
 import copy
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3,4,5,6,7'
+os.environ["CUDA_VISIBLE_DEVICES"] = '5'          # '0,1,2,3'
 
 import os.path as osp
 import time
@@ -102,7 +102,7 @@ def main():
     #
 
     args = ['./DOTA_configs/DOTA_obb/faster_rcnn_InLD_r50_fpn_2x_dota.py',
-            '--gpus', '8',
+            '--gpus', '1',
             '--no-validate',
             '--work-dir', './results/faster_obb_tv_ver1_cv2_InLD'
             ]

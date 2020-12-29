@@ -48,13 +48,13 @@ class InLD_head(nn.Module):
                                            feat_c,1,1,0))
         n_cls = self.num_classes
         self.conv_mask = nn.Conv2d(feat_c, n_cls, 3, 1, 1)
-        self.InLD_convs = nn.Conv2d(feat_c, feat_c, 1, 1, 0)
+        self.InLD_convs = nn.Conv2d(feat_c, feat_c, 3, 1, 1)
 
     def init_weights(self):
         """Initialize weights of the head."""
-        normal_init(self.diated_convs, std=0.01)
-        normal_init(self.conv_mask, std=0.01)
-        normal_init(self.InLD_convs, std=0.01)
+        normal_init(self.diated_convs, std=0.001)
+        normal_init(self.conv_mask, std=0.001)
+        normal_init(self.InLD_convs, std=0.001)
 
     def forward_single(self, x):
 
@@ -111,11 +111,25 @@ class InLD_head(nn.Module):
         target_mask_list = []
         gt_areas = gt_masks.areas
         gt_masks = gt_masks.masks.copy()
+        if len(gt_masks) == 0:
+            for feat_size in feat_sizes:
+                mask = np.zeros(tuple(feat_size))
+                target_mask_list.append(mask)
 
         for feat_size in feat_sizes:
             n_bbox, W, H = gt_masks.shape
 
             inds = np.argsort(gt_areas)
+            mask = np.zeros(tuple(feat_size), dtype=np.long)
+            for id in inds:
+                gt_mask = gt_masks[id]
+                gt_label = int(gt_labels[id])
+                r_H, r_W = tuple(feat_size)
+                gt_mask = cv2.resize(gt_mask, tuple(feat_size))
+                mask[gt_mask > 0] = gt_label
+            target_mask_list.append(mask)
+
+
             gt_masks = gt_masks[inds].reshape(n_bbox, W, H)
             gt_masks = gt_masks.transpose(1, 2, 0).astype(np.float)
 
