@@ -24,3 +24,10 @@ __all__ = [
     'SingleRoIExtractor', 'PISARoIHead', 'PointRendRoIHead', 'MaskPointHead',
     'CoarseMaskHead', 'DynamicRoIHead'
 ]
+
+###################################################################
+from .rbbox_roi_head_rs import RbboxRoIHeadRS
+__all__.extend([
+    'RbboxRoIHeadRS'
+]
+)

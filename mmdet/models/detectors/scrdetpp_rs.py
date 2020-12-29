@@ -4,10 +4,11 @@ import torch.nn as nn
 # from mmdet.core import bbox2result, bbox2roi, build_assigner, build_sampler
 from ..builder import DETECTORS, build_backbone, build_head, build_neck
 from .base import BaseDetector
-############与源文件没有任何不同
+
+
 
 @DETECTORS.register_module()
-class TwoStageDetectorRbboxRS(BaseDetector):
+class SCRDETPPRS(BaseDetector):
     """Base class for two-stage detectors.
 
     Two-stage detectors typically consisting of a region proposal network and a
@@ -18,12 +19,15 @@ class TwoStageDetectorRbboxRS(BaseDetector):
                  backbone,
                  neck=None,
                  rpn_head=None,
+                 InLD_head=None,
+                 train_InLD=False,
                  roi_head=None,
                  train_cfg=None,
                  test_cfg=None,
                  pretrained=None):
-        super(TwoStageDetectorRbboxRS, self).__init__()
+        super(SCRDETPPRS, self).__init__()
         self.backbone = build_backbone(backbone)
+        self.train_InLD = train_InLD
 
         if neck is not None:
             self.neck = build_neck(neck)
@@ -33,6 +37,12 @@ class TwoStageDetectorRbboxRS(BaseDetector):
             rpn_head_ = rpn_head.copy()
             rpn_head_.update(train_cfg=rpn_train_cfg, test_cfg=test_cfg.rpn)
             self.rpn_head = build_head(rpn_head_)
+
+        if InLD_head is not None:
+            # InLD_train_cfg = train_cfg.rpn if train_cfg is not None else None
+            InLD_head_ = InLD_head.copy()
+            # InLD_head_.update(train_cfg=rpn_train_cfg, test_cfg=test_cfg.rpn)
+            self.InLD_head = build_head(InLD_head_)
 
         if roi_head is not None:
             # update train and test cfg here for now
@@ -64,7 +74,7 @@ class TwoStageDetectorRbboxRS(BaseDetector):
             pretrained (str, optional): Path to pre-trained weights.
                 Defaults to None.
         """
-        super(TwoStageDetectorRbboxRS, self).init_weights(pretrained)
+        super(SCRDETPPRS, self).init_weights(pretrained)
         self.backbone.init_weights(pretrained=pretrained)
         if self.with_neck:
             if isinstance(self.neck, nn.Sequential):
@@ -95,11 +105,11 @@ class TwoStageDetectorRbboxRS(BaseDetector):
         # rpn
         if self.with_rpn:
             rpn_outs = self.rpn_head(x)
-            outs = outs + (rpn_outs, )
+            outs = outs + (rpn_outs,)
         proposals = torch.randn(1000, 4).to(img.device)
         # roi_head
         roi_outs = self.roi_head.forward_dummy(x, proposals)
-        outs = outs + (roi_outs, )
+        outs = outs + (roi_outs,)
         return outs
 
     def forward_train(self,
@@ -140,8 +150,19 @@ class TwoStageDetectorRbboxRS(BaseDetector):
             dict[str, Tensor]: a dictionary of loss components
         """
         x = self.extract_feat(img)
+        if self.train_InLD:
+            InLD_feats, mask_losses = self.InLD_head.forward_train(x,
+                                                                  gt_masks,
+                                                                  gt_labels,
+                                                                  img_metas)
 
-        losses = dict()
+            losses = dict(mask_losses=mask_losses)
+            x = InLD_feats
+            # print(len(x))
+            # for i in x:
+            #     print(i.shape)
+        else:
+            losses = dict()
 
         # RPN forward and loss
         if self.with_rpn:

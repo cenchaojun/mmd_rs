@@ -46,11 +46,12 @@ from .retina_head_rs import RetinaHeadRS
 from .base_dense_head_rs import BaseDenseHeadRS
 from .anchor_head_rbbox_rs import AnchorHeadRbboxRS
 from .retina_head_rbbox_rs import RetinaHeadRbboxRS
+from .InLD_head_rs import InLD_head
 
 __all__.extend([
     'AnchorHeadRbbox', 'RetinaHeadRbbox', 'RPNHeadAD',
     'RetinaHeadAD', 'AnchorHeadRS', 'RetinaHeadRS',
-    'BaseDenseHeadRS', 'AnchorHeadRbboxRS','RetinaHeadRbboxRS'
-
+    'BaseDenseHeadRS', 'AnchorHeadRbboxRS','RetinaHeadRbboxRS',
+    'InLD_head'
 ])
 

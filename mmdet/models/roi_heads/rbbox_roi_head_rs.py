@@ -4,10 +4,10 @@ from mmdet.core import bbox2result, bbox2roi, build_assigner, build_sampler
 from ..builder import HEADS, build_head, build_roi_extractor
 from .base_roi_head import BaseRoIHead
 from .test_mixins import BBoxTestMixin, MaskTestMixin
-
+from mmdet.utils.dbbox_transform import cv2_mask2rbbox
 
 @HEADS.register_module()
-class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
+class RbboxRoIHeadRS(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
     """Simplest base roi head including one bbox head and one mask head."""
 
     def init_assigner_sampler(self):
@@ -89,26 +89,69 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
             gt_labels (list[Tensor]): class indices corresponding to each box
             gt_bboxes_ignore (None | list[Tensor]): specify which bounding
                 boxes can be ignored when computing the loss.
-            gt_masks (None | Tensor) : true segmentation masks for each box
+            gt_masks (None | list[BitmapMasks]) : true segmentation masks for each box
                 used if the architecture supports a segmentation task.
+                BitmapMasks: areas: ndarray, height, width, masks: ndarray
 
         Returns:
             dict[str, Tensor]: a dictionary of loss components
         """
+        #########################################
+        # import pickle as pkl
+        # with open('./data/AD.pkl', 'rb') as f:
+        #     a = pkl.load(f)
+        # a = dict(
+        #     cls_scores=[gt_bboxes[0].new_tensor(torch.Tensor(cs)) for cs in a['cls_scores']],
+        #     bbox_preds=[gt_bboxes[0].new_tensor(torch.Tensor(bp)) for bp in a['bbox_preds']],
+        #     bbox_targets_list=[gt_bboxes[0].new_tensor(torch.Tensor(i)) for i in a['bbox_targets_list']],
+        #     losses_cls=[gt_bboxes[0].new_tensor(torch.Tensor(i)) for i in a['losses_cls']],
+        #     losses_bbox=[gt_bboxes[0].new_tensor(torch.Tensor(i)) for i in a['losses_bbox']],
+        # )
+        # cls_scores = a['cls_scores']
+        # bbox_preds = a['bbox_preds']
+
+        gt_masks = [gtm.masks for gtm in gt_masks]
+        gt_rbboxes = []
+        for i, gtb in enumerate(gt_bboxes):
+            neg_inds = torch.logical_or(gtb[:, 2] - gtb[:, 0] <= 1,
+                                        gtb[:, 3] - gtb[:, 1] <= 1)
+
+            gtb[gtb[:, 2] - gtb[:, 0] <= 0, 2] += 1
+            gtb[gtb[:, 3] - gtb[:, 1] <= 0, 3] += 1
+            pos_inds = torch.logical_not(neg_inds)
+            np_pos_inds = pos_inds.detach().cpu().numpy()
+            gt_bboxes[i] = gtb[pos_inds]
+            # print(np_pos_inds)
+            # print(len(np_pos_inds), gtb.shape, gt_masks[i].shape)
+            gt_rbbox = gt_bboxes[i].new_tensor(
+                cv2_mask2rbbox(gt_masks[i][np_pos_inds]))
+            gt_masks[i] = gt_masks[i][np_pos_inds]
+
+            gt_rbboxes.append(gt_rbbox)
+            gt_labels[i] = gt_labels[i][pos_inds]
+
+            # print(torch.sum(neg_inds))
+
+        ############################################
+
+
         # assign gts and sample proposals
         if self.with_bbox or self.with_mask:
             num_imgs = len(img_metas)
             if gt_bboxes_ignore is None:
                 gt_bboxes_ignore = [None for _ in range(num_imgs)]
             sampling_results = []
+            assign_results = []
             for i in range(num_imgs):
+                # gt_bbox去分配，gt_rbbox去计算回归target
                 assign_result = self.bbox_assigner.assign(
                     proposal_list[i], gt_bboxes[i], gt_bboxes_ignore[i],
                     gt_labels[i])
+                assign_results.append(assign_result)
                 sampling_result = self.bbox_sampler.sample(
                     assign_result,
                     proposal_list[i],
-                    gt_bboxes[i],
+                    gt_rbboxes[i],
                     gt_labels[i],
                     feats=[lvl_feat[i][None] for lvl_feat in x])
                 sampling_results.append(sampling_result)
@@ -116,20 +159,36 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
         losses = dict()
         # bbox head forward and loss
         if self.with_bbox:
-            bbox_results = self._bbox_forward_train(x, sampling_results,
-                                                    gt_bboxes, gt_labels,
+            bbox_results = self._bbox_forward_train(x,
+                                                    sampling_results,
+                                                    gt_bboxes,
+                                                    gt_labels,
                                                     img_metas)
             losses.update(bbox_results['loss_bbox'])
 
         # mask head forward and loss
         if self.with_mask:
-            mask_results = self._mask_forward_train(x, sampling_results,
+            mask_results = self._mask_forward_train(x,
+                                                    sampling_results,
                                                     bbox_results['bbox_feats'],
-                                                    gt_masks, img_metas)
+                                                    gt_masks,
+                                                    img_metas)
             # TODO: Support empty tensor input. #2280
             if mask_results['loss_mask'] is not None:
                 losses.update(mask_results['loss_mask'])
 
+        # loss bbox = 0可能是由于target=0，而预测的score也极小
+        # 具体的，RPN的proposal全都不靠谱，因此网络将GT作为Proposal
+        # 这样，网络应该输出的predict应该为0（因为target=0）
+        # if losses['loss_bbox'] < 1e-5:
+        #     print('LOSS BBOX ZEROOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO')
+        #     raise Exception
+            # pos_bboxes_list = [res.pos_bboxes for res in sampling_results]
+            # neg_bboxes_list = [res.neg_bboxes for res in sampling_results]
+            # pos_gt_bboxes_list = [res.pos_gt_bboxes for res in sampling_results]
+            # pos_gt_labels_list = [res.pos_gt_labels for res in sampling_results]
+            # print(pos_bboxes_list,
+            #           pos_gt_bboxes_list)
         return losses
 
     def _bbox_forward(self, x, rois):
@@ -151,8 +210,11 @@ class StandardRoIHead(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
         rois = bbox2roi([res.bboxes for res in sampling_results])
         bbox_results = self._bbox_forward(x, rois)
 
-        bbox_targets = self.bbox_head.get_targets(sampling_results, gt_bboxes,
-                                                  gt_labels, self.train_cfg)
+        bbox_targets = self.bbox_head.get_targets(sampling_results,
+                                                  # gt_bboxes,
+                                                  # gt_labels,
+                                                  self.train_cfg)
+       # print(bbox_targets)
         loss_bbox = self.bbox_head.loss(bbox_results['cls_score'],
                                         bbox_results['bbox_pred'], rois,
                                         *bbox_targets)

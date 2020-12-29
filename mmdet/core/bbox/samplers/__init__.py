@@ -17,8 +17,12 @@ __all__ = [
 ############################################################
 from .rbbox_base_sampler import RbboxBaseSampler
 from .rbbox_random_sampler import RandomRbboxSampler
-from .rbbox_sampler_rs import RbboxSamplerRS
+
+from .pseudo_sampler_rs import PseudoSamplerRS
+from .base_sampler_rs import BaseSamplerRS
+from .random_sampler_rs import RandomSamplerRS
 
 __all__.extend(['RbboxBaseSampler',
                 'RandomRbboxSampler',
-                'RbboxSamplerRS'])
+                'PseudoSamplerRS',
+                'BaseSamplerRS','RandomSamplerRS'])

@@ -55,7 +55,7 @@ train_cfg = dict(
         neg_iou_thr=0.4,
         min_pos_iou=0,
         ignore_iof_thr=-1),
-    sampler=dict(type='RbboxSamplerRS'),
+    sampler=dict(type='PseudoSamplerRS'),
     allowed_border=-1,
     pos_weight=-1,
     debug=False)

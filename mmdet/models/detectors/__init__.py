@@ -49,7 +49,7 @@ from .retinanet_rs import RetinaNetRS
 from .two_stage_rbbox_rs import TwoStageDetectorRbboxRS
 from .faster_rcnn_rbbox_rs import FasterRCNNRbboxRS
 
-
+from .scrdetpp_rs import SCRDETPPRS
 __all__.extend([
     'SingleStageDetectorRbbox','RetinaNetRbbox',
     'TwoStageDetectorRbbox', 'FasterRCNNOBB',
@@ -58,5 +58,6 @@ __all__.extend([
     'MaskRCNNOld',
     'SingleStageDetectorAD', 'RetinaNetAD',
     'SingleStageDetectorRS', 'RetinaNetRS',
-    'TwoStageDetectorRbboxRS', 'FasterRCNNRbboxRS'
+    'TwoStageDetectorRbboxRS', 'FasterRCNNRbboxRS',
+    'SCRDETPPRS'
 ])
