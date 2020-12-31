@@ -4,11 +4,11 @@ import math
 import DOTA_devkit.polyiou as polyiou
 import pdb
 
-def pesudo_nms_poly(dets, iou_thr):
+def pesudo_nms_poly(dets, iou_threshold):
     keep = torch.range(0, len(dets))
     return dets, keep
 
-def py_cpu_nms_poly_fast(dets, iou_thr):
+def py_cpu_nms_poly_fast(dets, iou_threshold):
     # TODO: check the type numpy()
     if dets.shape[0] == 0:
         keep = dets.new_zeros(0, dtype=torch.long)
@@ -16,14 +16,14 @@ def py_cpu_nms_poly_fast(dets, iou_thr):
         device = dets.device
         if isinstance(dets, torch.Tensor):
             dets = dets.cpu().numpy().astype(np.float64)
-        if isinstance(iou_thr, torch.Tensor):
-            iou_thr = iou_thr.cpu().numpy().astype(np.float64)
+        if isinstance(iou_threshold, torch.Tensor):
+            iou_threshold = iou_threshold.cpu().numpy().astype(np.float64)
     else:
         device = dets.device
         if isinstance(dets, torch.Tensor):
             dets = dets.cpu().numpy().astype(np.float64)
-        if isinstance(iou_thr, torch.Tensor):
-            iou_thr = iou_thr.cpu().numpy().astype(np.float64)
+        if isinstance(iou_threshold, torch.Tensor):
+            iou_threshold = iou_threshold.cpu().numpy().astype(np.float64)
         obbs = dets[:, 0:-1]
         # pdb.set_trace()
         x1 = np.min(obbs[:, 0::2], axis=1)
@@ -77,7 +77,7 @@ def py_cpu_nms_poly_fast(dets, iou_thr):
                     pdb.set_trace()
             except:
                 pass
-            inds = np.where(hbb_ovr <= iou_thr)[0]
+            inds = np.where(hbb_ovr <= iou_threshold)[0]
 
             # order_obb = ovr_index[inds]
             # print('inds: ', inds)
@@ -88,7 +88,7 @@ def py_cpu_nms_poly_fast(dets, iou_thr):
 
     return torch.from_numpy(dets[keep, :]).to(device), torch.from_numpy(np.array(keep)).to(device)
 
-def py_cpu_nms_poly_fast_np(dets, thresh):
+def py_cpu_nms_poly_fast_np(dets, iou_threshold):
     try:
         obbs = dets[:, 0:-1]
     except:
@@ -155,7 +155,7 @@ def py_cpu_nms_poly_fast_np(dets, thresh):
         # order = np.concatenate((order_obb, order_hbb), axis=0).astype(np.int)
     return keep
 
-def py_cpu_nms(dets, thresh):
+def py_cpu_nms(dets, iou_threshold):
     """Pure Python NMS baseline."""
     #print('dets:', dets)
     x1 = dets[:, 0]
@@ -183,7 +183,7 @@ def py_cpu_nms(dets, thresh):
         inter = w * h
         ovr = inter / (areas[i] + areas[order[1:]] - inter)
 
-        inds = np.where(ovr <= thresh)[0]
+        inds = np.where(ovr <= iou_threshold)[0]
         order = order[inds + 1]
 
     return keep

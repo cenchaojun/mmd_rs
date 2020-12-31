@@ -132,7 +132,7 @@ test_cfg = dict(
         min_bbox_size=0),
     rcnn=dict(
         # score_thr=0.05, nms=dict(type='py_cpu_nms_poly_fast', iou_thr=0.1), max_per_img=1000)
-        score_thr = 0.05, nms = dict(type='py_cpu_nms_poly_fast', iou_thr=0.1), max_per_img = 2000)
+        score_thr = 0.05, nms = dict(type='py_cpu_nms_poly_fast', iou_threshold=0.1), max_per_img = 2000)
         # score_thr = 0.001, nms = dict(type='pesudo_nms_poly', iou_thr=0.9), max_per_img = 2000)
         # score_thr = 0.001, nms = dict(type='py_cpu_nms_poly_fast', iou_thr=0.1), max_per_img = 2000)
 

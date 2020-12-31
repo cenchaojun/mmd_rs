@@ -59,7 +59,7 @@ test_cfg = dict(
     nms_pre=2000,
     min_bbox_size=0,
     score_thr=0.05,
-    nms=dict(type='py_cpu_nms_poly_fast', iou_thr=0.1),
+    nms=dict(type='py_cpu_nms_poly_fast', iou_threshold=0.1),
     # max_per_img=1000)
     max_per_img = 2000)
 # dataset settings

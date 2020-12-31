@@ -6,6 +6,7 @@ from mmcv.runner import force_fp32
 from mmdet.core import (anchor_inside_flags, build_anchor_generator,
                         build_assigner, build_bbox_coder, build_sampler,
                         images_to_levels, multi_apply, multiclass_nms, unmap)
+from mmdet.core import multiclass_nms_rbbox
 from ..builder import HEADS, build_loss
 from .base_dense_head_rs import BaseDenseHeadRS
 from .dense_test_mixins import BBoxTestMixin
@@ -671,7 +672,6 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
             bbox_pred = bbox_pred.permute(1, 2, 0).reshape(-1, 5)
             nms_pre = cfg.get('nms_pre', -1)
             if nms_pre > 0 and scores.shape[0] > nms_pre:
-                # Get maximum scores for foreground classes.
                 if self.use_sigmoid_cls:
                     max_scores, _ = scores.max(dim=1)
                 else:
@@ -689,22 +689,25 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
             mlvl_scores.append(scores)
         mlvl_bboxes = torch.cat(mlvl_bboxes)
         if rescale:
-            mlvl_bboxes /= mlvl_bboxes.new_tensor(scale_factor)
+            mlvl_bboxes[:, :4] /= mlvl_bboxes[:, :4].new_tensor(scale_factor)
+            # mlvl_bboxes /= mlvl_bboxes.new_tensor(scale_factor)
         mlvl_scores = torch.cat(mlvl_scores)
         if self.use_sigmoid_cls:
-            # Add a dummy background class to the backend when using sigmoid
-            # remind that we set FG labels to [0, num_class-1] since mmdet v2.0
-            # BG cat_id: num_class
             padding = mlvl_scores.new_zeros(mlvl_scores.shape[0], 1)
-            mlvl_scores = torch.cat([mlvl_scores, padding], dim=1)
+            # mlvl_scores = torch.cat([mlvl_scores, padding], dim=1)
+            mlvl_scores = torch.cat([padding, mlvl_scores], dim=1)
 
         if with_nms:
-            det_bboxes, det_labels = multiclass_nms(mlvl_bboxes, mlvl_scores,
-                                                    cfg.score_thr, cfg.nms,
-                                                    cfg.max_per_img)
-            return det_bboxes, det_labels
+            # det_bboxes, det_labels = multiclass_nms(mlvl_bboxes, mlvl_scores,
+            #                                         cfg.score_thr, cfg.nms,
+            #                                         cfg.max_per_img)
+            det_bboxes, det_labels = multiclass_nms_rbbox(mlvl_bboxes, mlvl_scores,
+                                                          cfg.score_thr, cfg.nms,
+                                                          cfg.max_per_img)
         else:
-            return mlvl_bboxes, mlvl_scores
+            raise Exception
+        return det_bboxes, det_labels
+
 
     def aug_test(self, feats, img_metas, rescale=False):
         """Test function with test time augmentation.

@@ -1,7 +1,7 @@
 import argparse
 import os
 ####################################################
-os.environ["CUDA_VISIBLE_DEVICES"] = '0'
+os.environ["CUDA_VISIBLE_DEVICES"] = '8'
 LOAD_RESULT=False
 ####################################################
 
@@ -117,11 +117,21 @@ def parse_args(args=''):
 
 
 def main():
-    args = ['./DOTA_configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_dota.py',
-            './results/faster_rcnn_hbb_tv/epoch_24.pth',
-            '--out', './results/faster_rcnn_hbb_tv/results.pkl',
-            '--eval', 'bbox'
+    # args = ['./DOTA_configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_dota.py',
+    #         './results/faster_rcnn_hbb_tv/epoch_24.pth',
+    #         '--out', './results/faster_rcnn_hbb_tv/results.pkl',
+    #         '--eval', 'bbox'
+    #         ]
+    # args = ['./DOTA_configs/DOTA_hbb/faster_rcnn_r50_fpn_2x_dota.py',
+    #         './results/faster_rcnn_hbb_tv/epoch_24.pth',
+    #         '--out', './results/faster_rcnn_hbb_tv/results.pkl',
+    #         ]
+
+    args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_dota.py',
+            './results/retinanet_obb_tv_ver1_cv2_no_trick/epoch_24.pth',
+            '--out', './results/retinanet_obb_tv_ver1_cv2_no_trick/results.pkl',
             ]
+
 
     args = parse_args(args)
     print(args)

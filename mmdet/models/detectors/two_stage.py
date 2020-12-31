@@ -204,7 +204,7 @@ class TwoStageDetector(BaseDetector):
         If rescale is False, then returned bboxes and masks will fit the scale
         of imgs[0].
         """
-        x = self.extract_feats(iamgs)
+        x = self.extract_feats(imgs)
         proposal_list = self.rpn_head.aug_test_rpn(x, img_metas)
         return self.roi_head.aug_test(
             x, proposal_list, img_metas, rescale=rescale)

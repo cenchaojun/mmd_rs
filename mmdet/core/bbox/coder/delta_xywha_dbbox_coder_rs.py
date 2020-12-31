@@ -124,7 +124,7 @@ def delta2rbbox(rois,
     dy = denorm_deltas[:, 1::5]
     dw = denorm_deltas[:, 2::5]
     dh = denorm_deltas[:, 3::5]
-    da = denorm_deltas[:, 5::5]
+    da = denorm_deltas[:, 4::5]
 
     max_ratio = np.abs(np.log(wh_ratio_clip))
     dw = dw.clamp(min=-max_ratio, max=max_ratio)
@@ -140,7 +140,7 @@ def delta2rbbox(rois,
     gy = py + ph * dy
     gw = pw * dw.exp()
     gh = ph * dh.exp()
-    ga = da + pa
+    ga = ((da + pa) * (2 * np.pi)) % (2 * np.pi)
 
     # gx: N x num_classes
     # torch.stack([gx, gy, gw, gh, ga], dim=-1): N x num_classes x 5

@@ -1,7 +1,7 @@
 import argparse
 import copy
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '5'          # '0,1,2,3'
+os.environ["CUDA_VISIBLE_DEVICES"] = '8'  # '0,1,2,3'
 
 import os.path as osp
 import time
@@ -88,11 +88,11 @@ def main():
     #         '--work-dir', './results/retinanet_hbb_tv'
     #         ]
 
-    # args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_dota.py',
-    #         '--gpus', '6',
-    #         '--no-validate',
-    #         '--work-dir', './results/retinanet_obb_tv_ver1_cv2_no_trick——aa'
-    #         ]
+    args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_dota.py',
+            '--gpus', '1',
+            '--no-validate',
+            '--work-dir', './results/retinanet_obb_tv_ver1_cv2_no_trick'
+            ]
     #
     # args = ['./DOTA_configs/DOTA_obb/faster_rcnn_r50_fpn_2x_dota.py',
     #         '--gpus', '4',
@@ -101,11 +101,11 @@ def main():
     #         ]
     #
 
-    args = ['./DOTA_configs/DOTA_obb/faster_rcnn_InLD_r50_fpn_2x_dota.py',
-            '--gpus', '1',
-            '--no-validate',
-            '--work-dir', './results/faster_obb_tv_ver1_cv2_InLD'
-            ]
+    # args = ['./DOTA_configs/DOTA_obb/faster_rcnn_InLD_r50_fpn_2x_dota.py',
+    #         '--gpus', '8',
+    #         '--no-validate',
+    #         '--work-dir', './results/faster_obb_tv_ver1_cv2_InLD'
+    #         ]
 
 
     args = parse_args(args)

@@ -1,5 +1,4 @@
 _base_ = [
-    '../_base_/models/faster_rcnn_r50_fpn.py',
     '../_base_/datasets/DOTA_train_val_obb.py',
     '../_base_/schedules/schedule_2x_rs.py',
     '../_base_/default_runtime.py'
@@ -108,7 +107,7 @@ test_cfg = dict(
     nms_pre=2000,
     min_bbox_size=0,
     score_thr=0.05,
-    nms=dict(type='nms', iou_threshold=0.5),
+    nms=dict(type='py_cpu_nms_poly_fast', iou_threshold=0.1),
     max_per_img=2000)
 
 optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)

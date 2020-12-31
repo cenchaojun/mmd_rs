@@ -117,28 +117,27 @@ class InLD_head(nn.Module):
                 target_mask_list.append(mask)
 
         for feat_size in feat_sizes:
-            n_bbox, W, H = gt_masks.shape
+            # n_bbox, W, H = gt_masks.shape
 
             inds = np.argsort(gt_areas)
             mask = np.zeros(tuple(feat_size), dtype=np.long)
             for id in inds:
                 gt_mask = gt_masks[id]
                 gt_label = int(gt_labels[id])
-                r_H, r_W = tuple(feat_size)
                 gt_mask = cv2.resize(gt_mask, tuple(feat_size))
                 mask[gt_mask > 0] = gt_label
             target_mask_list.append(mask)
 
-
-            gt_masks = gt_masks[inds].reshape(n_bbox, W, H)
-            gt_masks = gt_masks.transpose(1, 2, 0).astype(np.float)
-
-            r_W, r_H = tuple(feat_size)
-            gt_masks = cv2.resize(gt_masks, (r_W, r_H)).reshape(r_W, r_H, n_bbox)
-            gt_masks = gt_masks.transpose(2, 0, 1)
-            mask = np.zeros(tuple(feat_size))
-            for gt_m, label in zip(gt_masks, gt_labels):
-                mask[gt_m > 0] = int(label.detach().cpu())
-            target_mask_list.append(mask.astype(np.int32))
+            #
+            # gt_masks = gt_masks[inds].reshape(n_bbox, W, H)
+            # gt_masks = gt_masks.transpose(1, 2, 0).astype(np.float)
+            #
+            # r_W, r_H = tuple(feat_size)
+            # gt_masks = cv2.resize(gt_masks, (r_W, r_H)).reshape(r_W, r_H, n_bbox)
+            # gt_masks = gt_masks.transpose(2, 0, 1)
+            # mask = np.zeros(tuple(feat_size))
+            # for gt_m, label in zip(gt_masks, gt_labels):
+            #     mask[gt_m > 0] = int(label.detach().cpu())
+            # target_mask_list.append(mask.astype(np.int32))
         return target_mask_list
 
