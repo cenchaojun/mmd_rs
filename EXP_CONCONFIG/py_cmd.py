@@ -7,7 +7,10 @@ import argparse
 
 from EXP_CONCONFIG.model_hbb_tv_config import cfgs, show_dict
 from EXP_CONCONFIG.model_obb_tv_config import obb_cfgs
+from EXP_CONCONFIG.model_DIOR_full_config import DIOR_cfgs
 cfgs.update(obb_cfgs)
+cfgs.update(DIOR_cfgs)
+
 # print(cfgs, obb_cfgs)
 
 def parse_args():

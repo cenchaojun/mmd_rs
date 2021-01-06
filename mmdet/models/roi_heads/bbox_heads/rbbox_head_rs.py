@@ -5,6 +5,7 @@ from mmcv.runner import auto_fp16, force_fp32
 from torch.nn.modules.utils import _pair
 
 from mmdet.core import build_bbox_coder, multi_apply, multiclass_nms
+from mmdet.core import multiclass_nms_rbbox
 from mmdet.models.builder import HEADS, build_loss
 from mmdet.models.losses import accuracy
 
@@ -221,17 +222,38 @@ class RbboxHeadRS(nn.Module):
                 bboxes[:, [1, 3]].clamp_(min=0, max=img_shape[0])
 
         if rescale and bboxes.size(0) > 0:
+
             if isinstance(scale_factor, float):
                 bboxes /= scale_factor
             else:
                 scale_factor = bboxes.new_tensor(scale_factor)
-                bboxes = (bboxes.view(bboxes.size(0), -1, 4) /
+                ###########################
+                rbbox_scale_factor = scale_factor.new_zeros(5)
+                rbbox_scale_factor[0:4] = scale_factor
+                rbbox_scale_factor[4] = 1
+                scale_factor = rbbox_scale_factor
+
+                ###########################
+                bboxes = (bboxes.view(bboxes.size(0), -1, 5) /
                           scale_factor).view(bboxes.size()[0], -1)
 
         if cfg is None:
             return bboxes, scores
         else:
-            det_bboxes, det_labels = multiclass_nms(bboxes, scores,
+            ######################################################################
+            pad_scores = scores.new_zeros(len(scores), self.num_classes + 1)
+            # pad zero in first column
+            pad_scores[:, 1:self.num_classes+1] = scores[:, 0:self.num_classes]
+            pad_scores[:, 0] = scores[:, -1]
+
+            # pad zero at 0 -> 5
+            pad_bboxes = bboxes.new_zeros(len(bboxes), (self.num_classes + 1) * 5)
+            pad_bboxes[:, 5:(self.num_classes+1)*5] = bboxes
+
+
+            ######################################################################
+
+            det_bboxes, det_labels = multiclass_nms_rbbox(pad_bboxes, pad_scores,
                                                     cfg.score_thr, cfg.nms,
                                                     cfg.max_per_img)
 

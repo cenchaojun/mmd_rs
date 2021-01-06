@@ -1,7 +1,7 @@
 import argparse
 import copy
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '8'  # '0,1,2,3'
+os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3'
 
 import os.path as osp
 import time
@@ -88,24 +88,31 @@ def main():
     #         '--work-dir', './results/retinanet_hbb_tv'
     #         ]
 
-    args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_dota.py',
-            '--gpus', '1',
-            '--no-validate',
-            '--work-dir', './results/retinanet_obb_tv_ver1_cv2_no_trick'
-            ]
+    # args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_dota.py',
+    #         '--gpus', '1',
+    #         '--no-validate',
+    #         '--work-dir', './results/retinanet_obb_tv_ver1_cv2_no_trick'
+    #         ]
     #
-    # args = ['./DOTA_configs/DOTA_obb/faster_rcnn_r50_fpn_2x_dota.py',
+    # args = ['./DOTA_configs/DOTA_obb/faster_rcnn_r50_fpn_1x_dota.py',
     #         '--gpus', '4',
     #         '--no-validate',
     #         '--work-dir', './results/faster_obb_tv_ver1_cv2_no_trick'
     #         ]
-    #
+
 
     # args = ['./DOTA_configs/DOTA_obb/faster_rcnn_InLD_r50_fpn_2x_dota.py',
     #         '--gpus', '8',
     #         '--no-validate',
     #         '--work-dir', './results/faster_obb_tv_ver1_cv2_InLD'
     #         ]
+
+
+    args = ['./DOTA_configs/DIOR/retinanet_r50_fpn_2x_dota.py',
+            '--gpus', '4',
+            '--no-validate',
+            '--work-dir', './results/DIOR_retina_r50_2x'
+            ]
 
 
     args = parse_args(args)
@@ -181,6 +188,7 @@ def main():
         cfg.model, train_cfg=cfg.train_cfg, test_cfg=cfg.test_cfg)
 
     datasets = [build_dataset(cfg.data.train)]
+    print(len(datasets[0]))
     if len(cfg.workflow) == 2:
         val_dataset = copy.deepcopy(cfg.data.val)
         val_dataset.pipeline = cfg.data.train.pipeline

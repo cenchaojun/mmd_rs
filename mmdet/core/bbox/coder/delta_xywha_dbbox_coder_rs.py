@@ -25,7 +25,7 @@ class DeltaXYWHARbboxCoderRS(BaseBBoxCoder):
         assert bboxes.size(0) == gt_rbboxes.size(0)
         assert bboxes.size(-1) in [4, 5] \
                and gt_rbboxes.size(-1) == 5
-        rbboxes = transform_to_rbbox(bboxes)
+        rbboxes = formulate_rbbox(bboxes)
         encoded_bboxes = rbbox2delta(rbboxes, gt_rbboxes, self.means, self.stds)
         return encoded_bboxes
 
@@ -49,14 +49,14 @@ class DeltaXYWHARbboxCoderRS(BaseBBoxCoder):
         """
 
         assert pred_rbboxes.size(0) == bboxes.size(0)
-        rbboxes = transform_to_rbbox(bboxes)
+        rbboxes = formulate_rbbox(bboxes)
 
         decoded_bboxes = delta2rbbox(rbboxes, pred_rbboxes, self.means, self.stds,
                                      max_shape, wh_ratio_clip)
 
         return decoded_bboxes
 
-def transform_to_rbbox(bboxes):
+def formulate_rbbox(bboxes):
     # https://editor.csdn.net/md/?articleId=108725272
     bbox_dim =  bboxes.size(-1)
     assert bbox_dim in [4, 5, 8]
@@ -77,7 +77,7 @@ def rbbox2delta(proposals, gt, means=(0., 0., 0., 0., 0.), stds=(1., 1., 1., 1.,
     """
 
     :param proposals: anchor, [x, y, h, w, a]
-    :param gt:                [x, y, h, w, a]
+    :param gt:                [x, y, h, w, a], a：弧度制
     :param means:
     :param stds:
     :return:
@@ -140,7 +140,7 @@ def delta2rbbox(rois,
     gy = py + ph * dy
     gw = pw * dw.exp()
     gh = ph * dh.exp()
-    ga = ((da + pa) * (2 * np.pi)) % (2 * np.pi)
+    ga = (da + pa) % (2 * np.pi)
 
     # gx: N x num_classes
     # torch.stack([gx, gy, gw, gh, ga], dim=-1): N x num_classes x 5

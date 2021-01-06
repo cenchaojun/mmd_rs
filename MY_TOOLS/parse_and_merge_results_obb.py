@@ -158,6 +158,10 @@ if __name__ == '__main__':
     pkl_file = './results/retinanet_obb_tv_ver1_cv2_no_trick/results.pkl'
     output_path = './results/retinanet_obb_tv_ver1_cv2_no_trick'
 
+    config_file = './DOTA_configs/DOTA_obb/faster_rcnn_r50_fpn_2x_dota.py'
+    pkl_file = './results/faster_obb_tv_ver1_cv2_no_trick/results.pkl'
+    output_path = './results/faster_obb_tv_ver1_cv2_no_trick'
+
     type = 'OBB'
 
     parse_results(config_file, pkl_file, output_path, type)

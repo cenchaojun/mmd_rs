@@ -1,4 +1,4 @@
-dataset_type = 'DOTADatasetRS'
+dataset_type = 'CocoDataset'
 data_root = 'data/dota1_train_val_1024/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
@@ -27,22 +27,33 @@ test_pipeline = [
             dict(type='Collect', keys=['img']),
         ])
 ]
+classes = ('plane', 'baseball-diamond',
+           'bridge', 'ground-track-field',
+           'small-vehicle', 'large-vehicle',
+           'ship', 'tennis-court',
+           'basketball-court', 'storage-tank',
+           'soccer-ball-field', 'roundabout',
+           'harbor', 'swimming-pool',
+           'helicopter')
 data = dict(
-    samples_per_gpu=1,
-    workers_per_gpu=1,
+    samples_per_gpu=2,
+    workers_per_gpu=2,
     train=dict(
         type=dataset_type,
         ann_file=data_root + 'train1024/DOTA_train1024.json',
         img_prefix=data_root + 'train1024/images',
+        classes=classes,
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
         ann_file=data_root + 'valtest1024/DOTA_valtest1024.json',
         img_prefix=data_root + 'valtest1024/images',
+        classes=classes,
         pipeline=test_pipeline),
     test=dict(
         type=dataset_type,
         ann_file=data_root + 'valtest1024/DOTA_valtest1024.json',
         img_prefix=data_root + 'valtest1024/images',
+        classes=classes,
         pipeline=test_pipeline))
 evaluation = dict(interval=1, metric=['bbox', 'segm'])

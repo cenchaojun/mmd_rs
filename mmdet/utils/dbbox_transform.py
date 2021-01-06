@@ -105,7 +105,7 @@ def cv2_mask2rbbox_single(bi_mask):
     # 点最多的那个，作为contours
     max_contour = max(contours, key=len)
     [(xc, yc), (w, h), theta] = cv2.minAreaRect(max_contour)
-    theta = theta / 360
+    theta = (theta / 360) * (2 * np.pi)
     return [xc, yc, w, h, theta]
 
 def cv2_mask2rbbox(masks):

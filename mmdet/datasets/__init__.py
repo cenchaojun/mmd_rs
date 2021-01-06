@@ -31,12 +31,9 @@ from .DOTA2_ad import DOTA2Dataset_v3, DOTA2Dataset_v4
 from .DOTA1_5_ad import DOTA1_5Dataset, DOTA1_5Dataset_v3, DOTA1_5Dataset_v2
 from .utils_ad import to_tensor, get_dataset, show_ann, random_scale
 
-from .DOTA_rs import DOTADatasetRS
-
 __all__.extend([
     'DOTADataset', 'DOTADataset_v3', 'DOTA2Dataset',
     'DOTA2Dataset_v2','DOTA2Dataset_v3', 'DOTA2Dataset_v4',
     'DOTA1_5Dataset', 'DOTA1_5Dataset_v3', 'DOTA1_5Dataset_v2',
     'to_tensor','get_dataset', 'show_ann', 'random_scale',
-    'DOTADatasetNew'
 ])

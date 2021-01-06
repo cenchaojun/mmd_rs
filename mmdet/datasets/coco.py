@@ -521,7 +521,8 @@ class CocoDataset(CustomDataset):
                     table_data += [result for result in results_2d]
                     table = AsciiTable(table_data)
                     ########################
-                    print(table.table)
+                    # print(table.table)
+                    eval_results['results_per_category'] = results_per_category
                     ########################
                     print_log('\n' + table.table, logger=logger)
 

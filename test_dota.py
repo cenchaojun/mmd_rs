@@ -197,9 +197,22 @@ def main():
             # hard-code way to remove EvalHook args
             for key in ['interval', 'tmpdir', 'start', 'gpu_collect']:
                 eval_kwargs.pop(key, None)
-            eval_kwargs.update(dict(metric=args.eval, **kwargs))
             ######################################
+            # from mmdet.utils import collect_env, get_root_logger
+            # import os.path as osp
+            # import time
+            # timestamp = time.strftime('%Y%m%d_%H%M%S', time.localtime())
+            # log_file = osp.join(cfg.work_dir, f'{timestamp}.log')
+            # logger = get_root_logger(log_file=log_file, log_level=cfg.log_level)
+            # eval_kwargs['logger'] = True
+
+
+            eval_kwargs['classwise'] = True
+            eval_kwargs['proposal_nums'] = (100, 300, 1000)
+            eval_kwargs.update(dict(metric=args.eval, **kwargs))
+
             s = str(dataset.evaluate(outputs, **eval_kwargs))
+
             work_dir = os.path.split(str(args.out))[0]
             eval_file = os.path.join(work_dir, 'eval_results.txt')
             with open(eval_file, 'wt+') as f:

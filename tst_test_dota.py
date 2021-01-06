@@ -2,7 +2,7 @@ import argparse
 import os
 ####################################################
 os.environ["CUDA_VISIBLE_DEVICES"] = '8'
-LOAD_RESULT=False
+LOAD_RESULT=True
 ####################################################
 
 import warnings
@@ -127,11 +127,17 @@ def main():
     #         '--out', './results/faster_rcnn_hbb_tv/results.pkl',
     #         ]
 
-    args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_dota.py',
-            './results/retinanet_obb_tv_ver1_cv2_no_trick/epoch_24.pth',
-            '--out', './results/retinanet_obb_tv_ver1_cv2_no_trick/results.pkl',
-            ]
+    # args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_dota.py',
+    #         './results/retinanet_obb_tv_ver1_cv2_no_trick/epoch_24.pth',
+    #         '--out', './results/retinanet_obb_tv_ver1_cv2_no_trick/results.pkl',
+    #         ]
+    #
 
+    args = ['./DOTA_configs/DIOR/retinanet_r50_fpn_2x.py',
+            './results/DIOR_retinanet_full/epoch_24.pth',
+            '--out', './results/DIOR_retinanet_full/results.pkl',
+             '--eval', 'bbox'
+            ]
 
     args = parse_args(args)
     print(args)
@@ -148,6 +154,7 @@ def main():
         raise ValueError('The output file must be a pkl file.')
 
     cfg = Config.fromfile(args.config)
+    print(cfg.pretty_text)
     if args.cfg_options is not None:
         cfg.merge_from_dict(args.cfg_options)
     # import modules from string list.
@@ -248,6 +255,7 @@ def main():
             ######################################
             # add class wise
             eval_kwargs['classwise']=True
+            eval_kwargs['proposal_nums'] = (100, 300, 1000)
             s = str(dataset.evaluate(outputs, **eval_kwargs))
             work_dir = os.path.split(str(args.out))[0]
             eval_file = os.path.join(work_dir, 'eval_results.txt')
