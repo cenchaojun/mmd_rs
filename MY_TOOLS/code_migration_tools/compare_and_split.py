@@ -4,7 +4,7 @@ import os.path as osp
 import shutil
 
 
-dirobj = dircmp(r'..\mmd_remote_sense', r'..\mmdetection')
+# dirobj = dircmp(r'..\..\..\mmd_remote_sense', r'..\..\mmdetection_org')
 def mkdir(dir):
     if not os.path.exists(dir):
         # print('Mkdir %s' % dir)
@@ -34,7 +34,7 @@ def move_file(src_root, dst_root, f):
     #     print('copy %s %s' % (srcpth, dstpth))
     #     print('COPY FAILED')
 
-def move_left_only(left_root, right_root, dst_root):
+def move_left_only(left_root, right_root, dst_root, ignore_folders=None):
     """
 
     :param left_root: 修改后的mmd
@@ -71,10 +71,13 @@ def move_left_only(left_root, right_root, dst_root):
     move_left_only_(d, dst_root)
 
 # show_left_only(dirobj)
-org_folder = r'..\mmdetection'
-modified_name = r'mmd_rs_ad'
-modified_folder = r'..\%s' % modified_name
-dst_folder = r'.\tools_test\compare_%s' % modified_name
+os.chdir('../../../')
+print(os.listdir('./'))
+org_folder = r'.\mmd_rs\mmdetection_org'
+ignore_folders = []
+modified_name = r'mmd_rs'
+modified_folder = r'.\%s' % modified_name
+dst_folder = r'.\compare_%s' % modified_name
 mkdir(dst_folder)
 move_left_only(modified_folder, org_folder,
                dst_folder)
