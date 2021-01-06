@@ -1,8 +1,4 @@
-_base_ = [
-    '../_base_/models/faster_rcnn_r50_fpn.py',
-    '../_base_/datasets/DOTA_train_val_hbb.py',
-    '../_base_/default_runtime.py'
-]
+_base_ = '../faster_rcnn/faster_rcnn_r50_fpn_1x_coco.py'
 model = dict(
     roi_head=dict(
         type='DoubleHeadRoIHead',
@@ -25,22 +21,3 @@ model = dict(
             loss_cls=dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=2.0),
             loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=2.0))))
-
-
-
-test_cfg = dict(
-    rcnn=dict(
-        score_thr=0.05,
-        nms=dict(type='nms', iou_threshold=0.5),
-        max_per_img=2000))
-# optimizer
-optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
-optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
-# learning policy
-lr_config = dict(
-    policy='step',
-    warmup='linear',
-    warmup_iters=500,
-    warmup_ratio=0.001,
-    step=[16, 22])
-total_epochs=24

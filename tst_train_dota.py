@@ -1,7 +1,7 @@
 import argparse
 import copy
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '0,1,2,3'
+os.environ["CUDA_VISIBLE_DEVICES"] = '9'
 
 import os.path as osp
 import time
@@ -108,8 +108,8 @@ def main():
     #         ]
 
 
-    args = ['./DOTA_configs/DIOR/retinanet_r50_fpn_2x_dota.py',
-            '--gpus', '4',
+    args = ['./DOTA_configs/DIOR/retinanet_r50_fpn_2x.py',
+            '--gpus', '1',
             '--no-validate',
             '--work-dir', './results/DIOR_retina_r50_2x'
             ]

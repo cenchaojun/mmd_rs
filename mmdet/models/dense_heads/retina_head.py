@@ -111,15 +111,4 @@ class RetinaHead(AnchorHead):
             reg_feat = reg_conv(reg_feat)
         cls_score = self.retina_cls(cls_feat)
         bbox_pred = self.retina_reg(reg_feat)
-        ####################################
-        # import pickle as pkl
-        # # a = [cls_score.detach().cpu().numpy(),
-        # #      bbox_pred.detach().cpu().numpy()]
-        # with open('./data/AD.pkl', 'rb') as f:
-        #     a = pkl.load(f)
-        # import torch
-        # cls_score = x.new_tensor(a[0])
-        # bbox_pred = x.new_tensor(a[1])
-        #####################################
-
         return cls_score, bbox_pred

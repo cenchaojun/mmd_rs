@@ -14,6 +14,7 @@ from .point_rend_roi_head import PointRendRoIHead
 from .roi_extractors import SingleRoIExtractor
 from .shared_heads import ResLayer
 from .standard_roi_head import StandardRoIHead
+from .trident_roi_head import TridentRoIHead
 
 __all__ = [
     'BaseRoIHead', 'CascadeRoIHead', 'DoubleHeadRoIHead', 'MaskScoringRoIHead',
@@ -22,9 +23,13 @@ __all__ = [
     'Shared4Conv1FCBBoxHead', 'DoubleConvFCBBoxHead', 'FCNMaskHead',
     'HTCMaskHead', 'FusedSemanticHead', 'GridHead', 'MaskIoUHead',
     'SingleRoIExtractor', 'PISARoIHead', 'PointRendRoIHead', 'MaskPointHead',
-    'CoarseMaskHead', 'DynamicRoIHead'
+    'CoarseMaskHead', 'DynamicRoIHead', 'TridentRoIHead'
 ]
-
+   
+   
+   
+   
+   
 ###################################################################
 from .rbbox_roi_head_rs import RbboxRoIHeadRS
 __all__.extend([

@@ -7,9 +7,10 @@ import time
 import mmcv
 import torch
 import torch.distributed as dist
+from mmcv.image import tensor2imgs
 from mmcv.runner import get_dist_info
 
-from mmdet.core import encode_mask_results, tensor2imgs
+from mmdet.core import encode_mask_results
 
 
 def single_gpu_test(model,
@@ -21,30 +22,11 @@ def single_gpu_test(model,
     results = []
     dataset = data_loader.dataset
     prog_bar = mmcv.ProgressBar(len(dataset))
-    # a = [(i, data) for i, data in enumerate(data_loader)]
-
     for i, data in enumerate(data_loader):
-        ########################
-        # img_meta = data['img_metas'][0].data[0][0]
-        #
-        # data_id = 0
-        # for info in dataset.data_infos:
-        #     if info['file_name'] == 'P0673__1__0___0.png':
-        #         break
-        #     data_id += 1
-        #
-        # if img_meta['ori_filename'] != 'P0673__1__0___0.png':
-        #     for _ in range(1):
-        #         prog_bar.update()
-        #
-        #     continue
-        # if img_meta['ori_filename'] == 'P0673__1__0___0.png':
-        ########################
         with torch.no_grad():
             result = model(return_loss=False, rescale=True, **data)
 
         batch_size = len(result)
-
         if show or out_dir:
             if batch_size == 1 and isinstance(data['img'][0], torch.Tensor):
                 img_tensor = data['img'][0]
@@ -81,8 +63,6 @@ def single_gpu_test(model,
 
         for _ in range(batch_size):
             prog_bar.update()
-        ######################
-        # break
     return results
 
 
@@ -145,7 +125,8 @@ def collect_results_cpu(result_part, size, tmpdir=None):
                                 dtype=torch.uint8,
                                 device='cuda')
         if rank == 0:
-            tmpdir = tempfile.mkdtemp()
+            mmcv.mkdir_or_exist('.dist_test')
+            tmpdir = tempfile.mkdtemp(dir='.dist_test')
             tmpdir = torch.tensor(
                 bytearray(tmpdir.encode()), dtype=torch.uint8, device='cuda')
             dir_tensor[:len(tmpdir)] = tmpdir

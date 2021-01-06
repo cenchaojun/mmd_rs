@@ -244,11 +244,6 @@ class FCOSHead(AnchorFreeHead):
         else:
             loss_bbox = pos_bbox_preds.sum()
             loss_centerness = pos_centerness.sum()
-        #######################################################
-        if torch.isinf(loss_bbox) or torch.isnan(loss_bbox):
-                print(loss_bbox)
-                a = 0
-        #######################################################
 
         return dict(
             loss_cls=loss_cls,

@@ -14,4 +14,3 @@ __all__ = [
     'DETECTORS', 'build_backbone', 'build_neck', 'build_roi_extractor',
     'build_shared_head', 'build_head', 'build_loss', 'build_detector'
 ]
-

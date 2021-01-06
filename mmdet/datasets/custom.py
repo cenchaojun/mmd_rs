@@ -1,5 +1,6 @@
 import os.path as osp
 import warnings
+from collections import OrderedDict
 
 import mmcv
 import numpy as np
@@ -205,18 +206,8 @@ class CustomDataset(Dataset):
                 introduced by pipeline.
         """
 
-        ############### specific img#################
-        # sidx = 0
-        # for i, d in enumerate(self.data_infos):
-        #     if d['file_name'] == 'P0648__1__0___0.png':
-        #         sidx = i
-        #         break
-        # idx = sidx
-        ###################
-
         img_info = self.data_infos[idx]
         ann_info = self.get_ann_info(idx)
-
         results = dict(img_info=img_info, ann_info=ann_info)
         if self.proposals is not None:
             results['proposals'] = self.proposals[idx]
@@ -303,7 +294,7 @@ class CustomDataset(Dataset):
         if metric not in allowed_metrics:
             raise KeyError(f'metric {metric} is not supported')
         annotations = [self.get_ann_info(i) for i in range(len(self))]
-        eval_results = {}
+        eval_results = OrderedDict()
         if metric == 'mAP':
             assert isinstance(iou_thr, float)
             mean_ap, _ = eval_map(

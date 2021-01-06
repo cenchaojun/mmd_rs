@@ -1,6 +1,6 @@
 import torch
 
-from ..bbox import assign_and_sample, build_assigner, \
+from mmdet.core.bbox import assign_and_sample, build_assigner, \
     PseudoSampler, dbbox2delta, dbbox2delta_v3, hbb2obb_v2
 from ..utils import multi_apply
 from mmdet.core.bbox.transforms_rbbox_ad import gt_mask_bp_obbs

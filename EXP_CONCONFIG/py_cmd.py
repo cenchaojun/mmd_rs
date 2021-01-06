@@ -19,6 +19,8 @@ def parse_args():
     parser.add_argument('model', help='model name')
     parser.add_argument('-d', help='devices id, 0~9')
     parser.add_argument('-c', help='control, 1->list models')
+    parser.add_argument('-resume', help='latest -> latest or int -> epoch')
+
     parser.add_argument('-m', help='mode, train or test', default='train')
 
     args = parser.parse_args()
@@ -45,11 +47,18 @@ if __name__ == '__main__':
             cmd = 'CUDA_VISIBLE_DEVICES=%s python train_dota.py ' \
                   '%s ' \
                   '--gpus %s --no-validate ' \
-                  '--work-dir %s' %\
+                  '--work-dir %s ' %\
                   (args.d,
                    cfg['config'],
                    len(devs),
                    cfg['work_dir'])
+            if args.resume is not None:
+                if args.resume == 'latest':
+                    cmd += '--resume-from %s' % \
+                           (cfg['work_dir'] + '/latest.pth')
+                else:
+                    raise Exception
+
         elif args.m == 'test':
             assert len(devs) == 1
             cmd = 'CUDA_VISIBLE_DEVICES=%s python test_dota.py ' \

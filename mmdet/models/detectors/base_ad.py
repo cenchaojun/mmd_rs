@@ -6,7 +6,8 @@ import numpy as np
 import torch.nn as nn
 import pycocotools.mask as maskUtils
 
-from mmdet.core import tensor2imgs, get_classes
+from mmcv.image import tensor2imgs
+from mmdet.core import get_classes
 
 
 import torch
