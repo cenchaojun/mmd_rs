@@ -13,7 +13,7 @@ def gen_dict(name, config,
         result=    work_dir+'/' + result_name,
         Task2_results = None,
         Task2_results_split = None,
-        dota_eval_results=None,
+        dota_eval_results= work_dir + '/eval_results.txt',
         type='HBB'
     )
 
