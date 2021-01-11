@@ -847,6 +847,12 @@ def main():
     annopath = r'./data/dota/val/labelTxt/{:s}.txt' # change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
     imagesetfile = r'./data/dota/val/val_sets.txt'
 
+    # faster_RoITrans_tv
+    detpath = r'./results/faster_RoITrans_tv/Task1_results_nms/{:s}.txt'
+    annopath = r'./data/dota/val/labelTxt/{:s}.txt' # change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
+    imagesetfile = r'./data/dota/val/val_sets.txt'
+
+
 
     classnames = ['plane', 'baseball-diamond', 'bridge', 'ground-track-field', 'small-vehicle', 'large-vehicle', 'ship', 'tennis-court',
                 'basketball-court', 'storage-tank',  'soccer-ball-field', 'roundabout', 'harbor', 'swimming-pool', 'helicopter']
