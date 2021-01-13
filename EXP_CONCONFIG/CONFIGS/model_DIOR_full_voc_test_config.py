@@ -1,24 +1,25 @@
 root = '.'
 def gen_dict(name, config,
              result_root='/home/huangziyue/data/mmdet_results',
-             epoch=24,
+             epoch=12,
              result_name='results.pkl'):
     work_dir = result_root + '/' + name
 
     return dict(
-        name=name,
+        ## name修饰
+        name=name + '_voc',
         config=config,
         work_dir=  work_dir,
         cp_file=   work_dir+'/epoch_%d.pth' % epoch,
-        result=    work_dir+'/' + result_name,
+        result=    work_dir+'/epoch_12_' + result_name,
         Task2_results = None,
         Task2_results_split = None,
-        dota_eval_results= work_dir + '/eval_results.txt',
+        dota_eval_results= work_dir + '/epoch_12_voc_eval_results.txt',
         type='HBB'
     )
 
-DIOR_root = './DOTA_configs/DIOR'
-DIOR_cfgs = [
+DIOR_root = './DOTA_configs/DIOR_voc_test'
+DIOR_voc_cfgs = [
     gen_dict('DIOR_retinanet_full',
              DIOR_root + '/' + 'retinanet_r50_fpn_2x.py'),
     gen_dict('DIOR_atss_full',
@@ -62,15 +63,4 @@ DIOR_cfgs = [
     gen_dict('DIOR_paa_full',
              DIOR_root + '/' + 'paa_r50_fpn_2x.py')
 ]
-DIOR_cfgs = {cfg.pop('name'):cfg for cfg in DIOR_cfgs}
-
-def show_dict(d, n):
-    for k,v in d.items():
-        print('    ' * n, end='')
-        if isinstance(v, dict):
-            print(k, ':')
-            show_dict(v, n+1)
-        else:
-            print(k, ':', v)
-if __name__ == '__main__':
-    show_dict(DIOR_cfgs, 0)
+DIOR_voc_cfgs = {cfg.pop('name'):cfg for cfg in DIOR_voc_cfgs}

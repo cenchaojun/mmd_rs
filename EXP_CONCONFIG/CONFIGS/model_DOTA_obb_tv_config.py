@@ -25,8 +25,10 @@ def gen_dict(name, config,
 
 obb_root = './DOTA_configs/DOTA_obb'
 obb_cfgs = [
-    gen_dict('retina_obb_tv',
-             obb_root + '/' + 'retinanet_obb_r50_fpn_2x_dota.py')
+    gen_dict('DOTA_retina_obb_tv',
+             obb_root + '/' + 'retinanet_obb_r50_fpn_2x_dota.py'),
+    gen_dict('DOTA_faster_rcnn_RoITrans_tv',
+             obb_root + '/' + 'faster_rcnn_RoITrans_r50_fpn_1x_dota.py')
 ]
 obb_cfgs = {cfg.pop('name'):cfg for cfg in obb_cfgs}
 

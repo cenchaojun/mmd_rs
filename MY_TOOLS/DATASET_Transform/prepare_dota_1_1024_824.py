@@ -67,6 +67,8 @@ def prepare(srcpath, dstpath):
         os.mkdir(os.path.join(dstpath, 'train'))
     if not os.path.exists(os.path.join(dstpath, 'valtest')):
         os.mkdir(os.path.join(dstpath, 'valtest'))
+    if not os.path.exists(os.path.join(dstpath, 'test')):
+        os.mkdir(os.path.join(dstpath, 'test'))
 
     split_train = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'train'),
                        os.path.join(dstpath, 'train'),
@@ -74,7 +76,7 @@ def prepare(srcpath, dstpath):
                       subsize=1024,
                       num_process=32
                       )
-    split_train.splitdata(1)
+    split_train.splitdata(1, split_mode='train')
 
     split_val = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'val'),
                        os.path.join(dstpath, 'valtest'),
@@ -82,7 +84,15 @@ def prepare(srcpath, dstpath):
                       subsize=1024,
                       num_process=32
                       )
-    split_val.splitdata(1)
+    split_val.splitdata(1, split_mode='train')
+
+    split_val = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'test'),
+                       os.path.join(dstpath, 'test'),
+                      gap=200,
+                      subsize=1024,
+                      num_process=32
+                      )
+    split_val.splitdata(1, split_mode='test')
 
     # DOTA2COCOTrain(os.path.join(dstpath, 'trainval1024'), os.path.join(dstpath, 'trainval1024', 'DOTA_trainval1024.json'), wordname_15, difficult='-1')
     # DOTA2COCOTest(os.path.join(dstpath, 'test1024'), os.path.join(dstpath, 'test1024', 'DOTA_test1024.json'), wordname_15)
@@ -100,4 +110,4 @@ if __name__ == '__main__':
     # prepare('../data/dota', '../data/dota1_train_val_1024')
     root = '../../data'
     mkdir(root + '/dota1_train_val_1024')
-    prepare(root + '/dota', root + '/dota_train_val_1024_200')
+    prepare(root + '/dota', root + '/dota1_train_val_1024')

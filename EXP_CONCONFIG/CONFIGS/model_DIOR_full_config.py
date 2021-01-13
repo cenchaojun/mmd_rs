@@ -60,7 +60,10 @@ DIOR_cfgs = [
     gen_dict('DIOR_pafpn_full',
              DIOR_root + '/' + 'faster_rcnn_r50_pafpn_2x.py'),
     gen_dict('DIOR_paa_full',
-             DIOR_root + '/' + 'paa_r50_fpn_2x.py')
+             DIOR_root + '/' + 'paa_r50_fpn_2x.py'),
+    gen_dict('DIOR_detr_full',
+             DIOR_root + '/' + 'detr_r50_8x2_150e.py',
+             epoch=150)
 ]
 DIOR_cfgs = {cfg.pop('name'):cfg for cfg in DIOR_cfgs}
 
