@@ -1,3 +1,8 @@
+_base_ = [
+    '../_base_/datasets/DOTA_train_val_obb.py',
+    '../_base_/schedules/schedule_2x_rs.py',
+    '../_base_/default_runtime.py'
+]
 # model settings
 model = dict(
     type='S2ANetDetector',
@@ -54,7 +59,7 @@ train_cfg = dict(
             min_pos_iou=0,
             ignore_iof_thr=-1,
             iou_calculator=dict(type='BboxOverlaps2D_rotated')),
-        bbox_coder=dict(type='DeltaXYWHABBoxCoder',
+        bbox_coder=dict(type='DeltaXYWHABBoxCoderS2A',
                         target_means=(0., 0., 0., 0., 0.),
                         target_stds=(1., 1., 1., 1., 1.),
                         clip_border=True),
@@ -69,7 +74,7 @@ train_cfg = dict(
             min_pos_iou=0,
             ignore_iof_thr=-1,
             iou_calculator=dict(type='BboxOverlaps2D_rotated')),
-        bbox_coder=dict(type='DeltaXYWHABBoxCoder',
+        bbox_coder=dict(type='DeltaXYWHABBoxCoderS2A',
                         target_means=(0., 0., 0., 0., 0.),
                         target_stds=(1., 1., 1., 1., 1.),
                         clip_border=True),
@@ -80,22 +85,27 @@ test_cfg = dict(
     nms_pre=2000,
     min_bbox_size=0,
     score_thr=0.05,
-    nms=dict(type='nms_rotated', iou_thr=0.1),
+    nms=dict(type='py_cpu_nms_poly_fast', iou_thr=0.1),
     max_per_img=2000)
-# dataset settings
-dataset_type = 'DotaDataset'
-data_root = 'data/dota_1024/'
+
+# optimizer
+optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
+optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
+
+
+dataset_type = 'CocoDataset'
+data_root = 'data/dota1_train_val_1024/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 train_pipeline = [
     dict(type='LoadImageFromFile'),
-    dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='RotatedResize', img_scale=(1024, 1024), keep_ratio=True),
-    dict(type='RotatedRandomFlip', flip_ratio=0.5),
+    dict(type='LoadAnnotations', with_bbox=True, with_mask=True, poly2mask=False),
+    dict(type='Resize', img_scale=(1024, 1024), keep_ratio=True),
+    dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='Normalize', **img_norm_cfg),
     dict(type='Pad', size_divisor=32),
     dict(type='DefaultFormatBundle'),
-    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
+    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels', 'gt_masks']),
 ]
 test_pipeline = [
     dict(type='LoadImageFromFile'),
@@ -104,55 +114,41 @@ test_pipeline = [
         img_scale=(1024, 1024),
         flip=False,
         transforms=[
-            dict(type='RotatedResize', img_scale=(1024, 1024), keep_ratio=True),
-            dict(type='RotatedRandomFlip'),
+            dict(type='Resize', keep_ratio=True),
+            dict(type='RandomFlip'),
             dict(type='Normalize', **img_norm_cfg),
             dict(type='Pad', size_divisor=32),
             dict(type='ImageToTensor', keys=['img']),
             dict(type='Collect', keys=['img']),
         ])
 ]
+classes = ('plane', 'baseball-diamond',
+           'bridge', 'ground-track-field',
+           'small-vehicle', 'large-vehicle',
+           'ship', 'tennis-court',
+           'basketball-court', 'storage-tank',
+           'soccer-ball-field', 'roundabout',
+           'harbor', 'swimming-pool',
+           'helicopter')
 data = dict(
-    imgs_per_gpu=2,
+    samples_per_gpu=2,
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'trainval_split/trainval_s2anet.pkl',
-        img_prefix=data_root + 'trainval_split/images/',
+        ann_file=data_root + 'train1024/DOTA_train1024.json',
+        img_prefix=data_root + 'train1024/images',
+        classes=classes,
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'trainval_split/trainval_s2anet.pkl',
-        img_prefix=data_root + 'trainval_split/images/',
+        ann_file=data_root + 'valtest1024/DOTA_valtest1024.json',
+        img_prefix=data_root + 'valtest1024/images',
+        classes=classes,
         pipeline=test_pipeline),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'test_split/test_s2anet.pkl',
-        img_prefix=data_root + 'test_split/images/',
+        ann_file=data_root + 'valtest1024/DOTA_valtest1024.json',
+        img_prefix=data_root + 'valtest1024/images',
+        classes=classes,
         pipeline=test_pipeline))
-evaluation = dict(
-    gt_dir='data/dota/test/labelTxt/', # change it to valset for offline validation
-    imagesetfile='data/dota/test/test.txt')
-# optimizer
-optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)
-optimizer_config = dict(grad_clip=dict(max_norm=35, norm_type=2))
-# learning policy
-lr_config = dict(
-    policy='step',
-    warmup='linear',
-    warmup_iters=500,
-    warmup_ratio=1.0 / 3,
-    step=[8, 11])
-checkpoint_config = dict(interval=1)
-log_config = dict(
-    interval=50,
-    hooks=[
-        dict(type='TextLoggerHook'),
-    ])
-# runtime settings
-total_epochs = 12
-dist_params = dict(backend='nccl')
-log_level = 'INFO'
-load_from = None
-resume_from = None
-workflow = [('train', 1)]
+evaluation = dict(interval=1, metric=['bbox', 'segm'])

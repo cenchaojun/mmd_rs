@@ -6,15 +6,13 @@ from .base_bbox_coder import BaseBBoxCoder
 
 
 @BBOX_CODERS.register_module()
-class DeltaXYWHARbboxCoderRS(BaseBBoxCoder):
+class DeltaXYWHAModRbboxCoderRS(BaseBBoxCoder):
     def __init__(self,
-                 target_means=(0., 0., 0., 0.),
-                 target_stds=(1., 1., 1., 1.),
-                 use_mod=False):
+                 target_means=(0., 0., 0., 0., 0.),
+                 target_stds=(1., 1., 1., 1., 1.)):
         super(BaseBBoxCoder, self).__init__()
         self.means = target_means
         self.stds = target_stds
-        self.use_mod = use_mod
 
     def encode(self, bboxes, gt_rbboxes):
         """
@@ -28,7 +26,7 @@ class DeltaXYWHARbboxCoderRS(BaseBBoxCoder):
         assert bboxes.size(-1) in [4, 5] \
                and gt_rbboxes.size(-1) == 5
         rbboxes = formulate_rbbox(bboxes)
-        encoded_bboxes = rbbox2delta(rbboxes, gt_rbboxes, self.means, self.stds, self.use_mod)
+        encoded_bboxes = rbbox2delta(rbboxes, gt_rbboxes, self.means, self.stds)
         return encoded_bboxes
 
     def decode(self,
@@ -52,8 +50,12 @@ class DeltaXYWHARbboxCoderRS(BaseBBoxCoder):
 
         assert pred_rbboxes.size(0) == bboxes.size(0)
         rbboxes = formulate_rbbox(bboxes)
-
-        decoded_bboxes = delta2rbbox(rbboxes, pred_rbboxes, self.means, self.stds,
+        # pred_inclines = pred_rbboxes[:, 5]
+        # pred_rbboxes = pred_rbboxes[:, 0:5]
+        decoded_bboxes = delta2rbbox(rbboxes,
+                                     pred_rbboxes,
+                                     # pred_inclines,
+                                     self.means, self.stds,
                                      max_shape, wh_ratio_clip,
                                      self.use_mod)
 
@@ -74,12 +76,9 @@ def formulate_rbbox(bboxes):
         return bboxes
 
 
-
-
 def rbbox2delta(proposals, gt,
                 means=(0., 0., 0., 0., 0.),
-                stds=(1., 1., 1., 1., 1.),
-                use_mod=False):
+                stds=(1., 1., 1., 1., 1.)):
     """
 
     :param proposals: anchor, [x, y, h, w, a]
@@ -90,10 +89,10 @@ def rbbox2delta(proposals, gt,
     """
     assert proposals.size() == gt.size()
 
-    if use_mod:
-        inds = gt[..., 4] < -np.pi/4
-        gt[inds, 2], gt[inds, 3] = gt[inds, 3], gt[inds, 2]
-        gt[inds, 4] = -np.pi/2 - gt[inds, 4]
+    # if use_mod:
+    #     inds = gt[..., 4] < -np.pi/4
+    #     gt[inds, 2], gt[inds, 3] = gt[inds, 3], gt[inds, 2]
+    #     gt[inds, 4] = -np.pi/2 - gt[inds, 4]
 
     dx = (gt[..., 0] - proposals[..., 0]) / proposals[..., 2]
     dy = (gt[..., 1] - proposals[..., 1]) / proposals[..., 3]
@@ -112,8 +111,8 @@ def rbbox2delta(proposals, gt,
 
 def delta2rbbox(rois,
                deltas,
-               means=(0., 0., 0., 0.),
-               stds=(1., 1., 1., 1.),
+               means=(0., 0., 0., 0., 0.),
+               stds=(1., 1., 1., 1., 1.),
                max_shape=None,
                wh_ratio_clip=16 / 1000,
                 use_mod=False):
@@ -151,14 +150,52 @@ def delta2rbbox(rois,
     gy = py + ph * dy
     gw = pw * dw.exp()
     gh = ph * dh.exp()
-    if use_mod:
-        pass
-        # ga = (da + pa) % (np.pi / 2)
-        # ga[ga < -np.pi / 4
-        # gt[inds, 2], gt[inds, 3] = gt[inds, 3], gt[inds, 2]
-        # gt[inds, 4] = -np.pi / 2 - gt[inds, 4]
-    else:
-        ga = (da + pa) % (2 * np.pi)
+
+    ############################################################
+    # ga = (da + pa) % (-np.pi / 4)
+    # pred_inclines = pred_inclines.sigmoid()
+    # right_inds = pred_inclines > 0.5   # 向右倾斜
+    # left_inds = pred_inclines < 0.5
+    #
+    # # 角度修正
+    # ga[right_inds] = -np.pi / 4 - ga[right_inds]
+    #
+    # # W, H互换
+    # new_gw = gw.new_zeros(gw)
+    # new_gh = gh.new_zeros(gh)
+    #
+    # new_gw[right_inds] = gh[right_inds]
+    # new_gw[left_inds] = gw[left_inds]
+    #
+    # new_gh[right_inds] = gh[right_inds]
+    # new_gh[left_inds] = gh[left_inds]
+    #
+    # gw = new_gw
+    # gh = new_gh
+    ############################################################
+
+    ###########################################################
+    ga = (da + pa) % (-np.pi * 2)
+    right_inds = ga > -np.pi / 4   # 向右倾斜
+    left_inds = ga < -np.pi / 4
+    #
+    # # 角度修正
+    # ga[right_inds] = -np.pi / 4 - ga[right_inds]
+
+    # W, H互换
+    new_gw = gw.new_zeros(gw)
+    new_gh = gh.new_zeros(gh)
+
+    new_gw[right_inds] = gh[right_inds]
+    new_gw[left_inds] = gw[left_inds]
+
+    new_gh[right_inds] = gh[right_inds]
+    new_gh[left_inds] = gh[left_inds]
+
+    gw = new_gw
+    gh = new_gh
+    ###########################################################
+
 
     # gx: N x num_classes
     # torch.stack([gx, gy, gw, gh, ga], dim=-1): N x num_classes x 5

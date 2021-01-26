@@ -172,6 +172,43 @@ class BBoxHeadRbbox(nn.Module):
                 bbox_targets[pos_inds],
                 bbox_weights[pos_inds],
                 avg_factor=bbox_targets.size(0))
+
+        # ###########################################################
+        from mmdet.MARK import PRINT_RBBOX_HEAD_RS_LOSS
+        if PRINT_RBBOX_HEAD_RS_LOSS:
+            if torch.sum(pos_inds) > 0:
+                pos_inds = labels > 0
+
+                # pos_inds = pos_inds[0:min(len(pos_inds), 10)]
+                pred_score = cls_score[pos_inds].softmax(1)
+                pred_score, pred_label = torch.max(pred_score, dim=1)
+
+                # 前景标签
+                pred_f_indices = pred_label != 0
+
+                # from EXP_CONCONFIG.MARK import PRINT_RBBOX_HEAD
+                # PRINT_RBBOX_HEAD = True
+                pos_loss = self.loss_cls(
+                    cls_score[pos_inds], labels[pos_inds], label_weights[pos_inds])
+                pos_acc = accuracy(cls_score[pos_inds], labels[pos_inds])
+
+                if torch.sum(pred_f_indices) > 0:
+                    print('#'*80)
+                    print('pred_score:', pred_score[pred_f_indices].detach().cpu().numpy())
+                    print('pred_label:', pred_label[pred_f_indices].detach().cpu().numpy())
+                    print('gt_label:',  labels[pos_inds][pred_f_indices].detach().cpu().numpy())
+                    print('pos loss: %.2f' % float(pos_loss),
+                          '   || pos acc: %.2f' % float(pos_acc))
+                    print('total_loss:', float(losses['rbbox_loss_cls']))
+                    print('total_acc:', float(losses['rbbox_acc']))
+
+                    print('%d, %d' % (int(torch.sum(pos_inds)), len(cls_score)))
+                    print(torch.sum(label_weights))
+
+                    print('#'*80)
+        # ###########################################################
+
+
         return losses
 
     def get_det_bboxes(self,
@@ -232,6 +269,23 @@ class BBoxHeadRbbox(nn.Module):
                                                 cfg.max_per_img)
         # det_bboxes = torch.from_numpy(det_bboxes).to(c_device)
         # det_labels = torch.from_numpy(det_labels).to(c_device)
+
+        # ###########################################################
+        from mmdet.MARK import PRINT_RBBOX_HEAD_RS_LOSS
+        if PRINT_RBBOX_HEAD_RS_LOSS:
+            # pos_inds = pos_inds[0:min(len(pos_inds), 10)]
+            pred_score = scores
+            pred_score, pred_label = torch.max(pred_score, dim=1)
+
+            # 前景标签
+            pred_f_indices = pred_label != 0
+
+            if torch.sum(pred_f_indices) > 0:
+                print('#' * 80)
+                print('for pred score: ', pred_score[pred_f_indices])
+                print('#' * 80)
+        # ###########################################################
+
         return det_bboxes, det_labels
 
     def get_det_rbboxes(self,
@@ -263,6 +317,22 @@ class BBoxHeadRbbox(nn.Module):
             dbboxes[:, 1::5] /= scale_factor
             dbboxes[:, 2::5] /= scale_factor
             dbboxes[:, 3::5] /= scale_factor
+
+        # ###########################################################
+        from mmdet.MARK import PRINT_RBBOX_HEAD_RS_LOSS
+        if PRINT_RBBOX_HEAD_RS_LOSS:
+            # pos_inds = pos_inds[0:min(len(pos_inds), 10)]
+            pred_score = scores
+            pred_score, pred_label = torch.max(pred_score, dim=1)
+
+            # 前景标签
+            pred_f_indices = pred_label != 0
+
+            if torch.sum(pred_f_indices) > 0:
+                print('#' * 80)
+                print('for pred score: ', pred_score[pred_f_indices])
+                print('#' * 80)
+        # ###########################################################
         if cfg is None:
             return dbboxes, scores
         else:
@@ -357,33 +427,3 @@ class BBoxHeadRbbox(nn.Module):
             new_rois = torch.cat((rois[:, [0]], bboxes), dim=1)
 
         return new_rois
-
-    # def regress_by_class(self, rois, label, bbox_pred, img_meta):
-    #     """Regress the bbox for the predicted class. Used in Cascade R-CNN.
-    #
-    #     Args:
-    #         rois (Tensor): shape (n, 4) or (n, 5)
-    #         label (Tensor): shape (n, )
-    #         bbox_pred (Tensor): shape (n, 4*(#class+1)) or (n, 4)
-    #         img_meta (dict): Image meta info.
-    #
-    #     Returns:
-    #         Tensor: Regressed bboxes, the same shape as input rois.
-    #     """
-    #     assert rois.size(1) == 4 or rois.size(1) == 5
-    #
-    #     if not self.reg_class_agnostic:
-    #         label = label * 4
-    #         inds = torch.stack((label, label + 1, label + 2, label + 3), 1)
-    #         bbox_pred = torch.gather(bbox_pred, 1, inds)
-    #     assert bbox_pred.size(1) == 4
-    #
-    #     if rois.size(1) == 4:
-    #         new_rois = delta2bbox(rois, bbox_pred, self.target_means,
-    #                               self.target_stds, img_meta['img_shape'])
-    #     else:
-    #         bboxes = delta2bbox(rois[:, 1:], bbox_pred, self.target_means,
-    #                             self.target_stds, img_meta['img_shape'])
-    #         new_rois = torch.cat((rois[:, [0]], bboxes), dim=1)
-    #
-    #     return new_rois

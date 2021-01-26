@@ -7,6 +7,8 @@ _base_ = [
 
 # model settings
 model = dict(
+    rpn_head=dict(
+        loss_bbox=dict(type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0)),
     roi_head=dict(
         type='RbboxRoIHeadRS',
         bbox_roi_extractor=dict(
@@ -21,9 +23,15 @@ model = dict(
             reg_class_agnostic=False,
             loss_cls=dict(
                 type='CrossEntropyLoss', use_sigmoid=False, loss_weight=1.0),
-            loss_bbox=dict(type='L1Loss', loss_weight=1.0))))
+            loss_bbox=dict(type='SmoothL1Loss', beta=1.0, loss_weight=1.0)))
+    # loss_bbox=dict(type='L1Loss', loss_weight=1.0)))
+
+)
+
 # model training and testing settings
 train_cfg = dict(
+    rpn=dict(
+        allowed_border=0),
     rpn_proposal=dict(
         nms_post=2000,
         max_num=2000),
@@ -62,7 +70,7 @@ lr_config = dict(
     warmup_iters=500,
     warmup_ratio=1.0/3,
     step=[8, 11])
-total_epochs = 12
+total_epochs = 24
 
 log_config = dict(
     interval=50,

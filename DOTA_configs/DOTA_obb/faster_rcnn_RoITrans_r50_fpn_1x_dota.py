@@ -140,8 +140,9 @@ test_cfg = dict(
     # e.g., nms=dict(type='soft_nms', iou_thr=0.5, min_score=0.05)
 )
 # dataset settings
+# dataset settings
 dataset_type = 'DOTADataset'
-data_root = 'data/dota1_train_val_1024/'
+data_root = 'data/dota_1_1024_824/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 data = dict(
@@ -149,8 +150,8 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'train1024/DOTA_train1024.json',
-        img_prefix=data_root + 'train1024/images',
+        ann_file=data_root + 'train/train_coco_ann.json',
+        img_prefix=data_root + 'train/images',
         img_scale=(1024, 1024),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
@@ -160,8 +161,8 @@ data = dict(
         with_label=True),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'valtest1024/DOTA_valtest1024.json',
-        img_prefix=data_root + 'valtest1024/images',
+        ann_file=data_root + 'val/val_coco_ann.json',
+        img_prefix=data_root + 'val/images',
         img_scale=(1024, 1024),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
@@ -171,8 +172,8 @@ data = dict(
         with_label=True),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'valtest1024/DOTA_valtest1024.json',
-        img_prefix=data_root + 'valtest1024/images',
+        ann_file=data_root + 'val/val_coco_ann.json',
+        img_prefix=data_root + 'val/images',
         img_scale=(1024, 1024),
         img_norm_cfg=img_norm_cfg,
         size_divisor=32,
@@ -204,7 +205,7 @@ log_config = dict(
 total_epochs = 12
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-work_dir = './work_dirs/faster_rcnn_RoITrans_r50_fpn_1x_dota'
+work_dir = './work_dirs/DOTA_faster_rcnn_RoITrans_tv'
 load_from = None
 resume_from = None
 workflow = [('train', 1)]

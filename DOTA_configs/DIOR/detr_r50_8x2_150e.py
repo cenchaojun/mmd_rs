@@ -1,8 +1,7 @@
-# from .a_base_config import num_classes, dataset_config, max_bbox_per_img
+from DOTA_configs.DIOR.a_base_config import num_classes, dataset_config, max_bbox_per_img
 max_img_scale = 800
 mis = max_img_scale
-max_bbox_per_img = 600
-num_classes = 20
+
 
 _base_ = [
     '../_base_/datasets/DIOR_full.py',

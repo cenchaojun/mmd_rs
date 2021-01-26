@@ -309,9 +309,29 @@ def evaluate(detpath, annopath, imagesetfile, eval_result_path):
     classaps = 100*np.array(classaps)
     print('classaps: ', classaps)
 
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description='parse exp cmd')
+    parser.add_argument('model', help='model name')
+    parser.add_argument('-d', help='devices id, 0~9')
+    parser.add_argument('-c', help='control, list->list models, state->model的状态')
+    parser.add_argument('-resume', help='latest -> latest or int -> epoch')
+
+    parser.add_argument('-load_results',
+                        action='store_true',
+                        help=' does not inference ,just evaluate, default=True')
+
+
+    parser.add_argument('-m', help='mode, train or test', default='train')
+
+    args = parser.parse_args()
+    return args
+
+
 
 if __name__ == '__main__':
     os.chdir('../')
+    args = parse_args()
 
     annopath = r'./data/dota/val/labelTxt/{:s}.txt'# change the directory to the path of val/labelTxt, if you want to do evaluation on the valset
     imagesetfile = r'./data/dota/val/val_sets.txt'

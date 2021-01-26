@@ -20,5 +20,11 @@ __all__ = [
 
 from .delta_xywh_bbox_coder_rs import DeltaXYWHBBoxCoderRS
 from .delta_xywha_dbbox_coder_rs import DeltaXYWHARbboxCoderRS
+from .delta_xywha_bbox_coder_s2a import DeltaXYWHABBoxCoderS2A
+from .delta_xywha_mod_dbbox_coder_rs import DeltaXYWHAModRbboxCoderRS
+from .delta_xywha_dbbox_coder_adtype_rs import DeltaXYWHARbboxCoderADTypeRS
 __all__.extend(['DeltaXYWHBBoxCoderRS',
-                'DeltaXYWHARbboxCoderRS'])
+                'DeltaXYWHARbboxCoderRS',
+                'DeltaXYWHABBoxCoderS2A',
+                'DeltaXYWHAModRbboxCoderRS',
+                'DeltaXYWHARbboxCoderADTypeRS'])

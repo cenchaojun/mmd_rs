@@ -10,12 +10,11 @@ from mmdet.core import multiclass_nms_rbbox
 from ..builder import HEADS, build_loss
 from .base_dense_head_rs import BaseDenseHeadRS
 from .dense_test_mixins import BBoxTestMixin
-from mmdet.utils.dbbox_transform import cv2_mask2rbbox, cv2_mask2rbbox_mod
-use_mod = False
+from mmdet.utils.dbbox_transform import cv2_mask2rbbox_mod, cv2_mask2rbbox
 
 
 @HEADS.register_module()
-class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
+class AnchorHeadRbboxCV2ModRS(BaseDenseHeadRS, BBoxTestMixin):
     """Anchor-based head (RPN, RetinaNet, SSD, etc.).
 
     Args:
@@ -55,7 +54,7 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
                      type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0),
                  train_cfg=None,
                  test_cfg=None):
-        super(AnchorHeadRbboxRS, self).__init__()
+        super(AnchorHeadRbboxCV2ModRS, self).__init__()
         self.in_channels = in_channels
         self.num_classes = num_classes
         self.feat_channels = feat_channels
@@ -237,8 +236,10 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
         # if use_mod:
         #     gt_rbboxes = cv2_mask2rbbox_mod(gt_masks)
         # else:
-        gt_rbboxes = cv2_mask2rbbox(gt_masks)
+        gt_rbboxes = cv2_mask2rbbox(gt_masks)# cv2_mask2rbbox_mod(gt_masks)
         gt_rbboxes = gt_bboxes.new_tensor(gt_rbboxes)
+        # gt_inclines = gt_rbboxes[:, -1]
+        # gt_rbboxes = gt_rbboxes[:, 0:-1]
 
         sampling_result = self.sampler.sample(assign_result, anchors,
                                               gt_rbboxes)
@@ -261,8 +262,15 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
                     sampling_result.pos_bboxes, sampling_result.pos_gt_bboxes)
             else:
                 pos_bbox_targets = sampling_result.pos_gt_bboxes
+           #############################################################
+
             bbox_targets[pos_inds, :] = pos_bbox_targets
+            #
+            # pos_assigned_gt_inds = assign_result.gt_inds[pos_inds] - 1
+            # bbox_targets[pos_inds, 5] = gt_inclines[pos_assigned_gt_inds]
             bbox_weights[pos_inds, :] = 1.0
+            #############################################################
+
             if gt_labels is None:
                 # Only rpn gives gt_labels as None
                 # Foreground is the first class since v2.5.0
@@ -436,10 +444,13 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
         # regression loss
         bbox_targets = bbox_targets.reshape(-1, 5)
         bbox_weights = bbox_weights.reshape(-1, 5)
+
         bbox_pred = bbox_pred.permute(0, 2, 3, 1).reshape(-1, 5)
         if self.reg_decoded_bbox:
             anchors = anchors.reshape(-1, 4)
             bbox_pred = self.bbox_coder.decode(anchors, bbox_pred)
+
+
         loss_bbox = self.loss_bbox(
             bbox_pred,
             bbox_targets,

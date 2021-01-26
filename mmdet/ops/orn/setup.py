@@ -58,17 +58,41 @@ class custom_build_ext(build_ext):
     def build_extensions(self):
         customize_compiler_for_nvcc(self.compiler)
         build_ext.build_extensions(self)
+def make_cuda_ext(name, module, sources):
+    define_macros = []
+    define_macros += [("WITH_CUDA", None)]
+    return CUDAExtension(
+        name='{}.{}'.format(module, name),
+        sources=[os.path.join(*module.split('.'), p) for p in sources],
+        define_macros=define_macros,
+        extra_compile_args={
+            'cxx': [],
+            'nvcc': [
+                '-D__CUDA_NO_HALF_OPERATORS__',
+                '-D__CUDA_NO_HALF_CONVERSIONS__',
+                '-D__CUDA_NO_HALF2_OPERATORS__',
+            ]
+        })
 
 
 setup(
-    name='poly_nms_cuda',
+    name='orn_cuda',
     ext_modules=[
-        CUDAExtension('poly_nms_cuda', [
-            'src/poly_nms_cuda.cpp',
-            'src/poly_nms_kernel.cu',
-        ]),
-        # CUDAExtension('nms_cpu', [
-        #     'src/nms_cpu.cpp',
-        # ]),
+        # make_cuda_ext(
+        #     name='orn_cuda',
+        #     module='mmdet.ops.orn',
+        #     sources=['src/vision.cpp',
+        #              'src/cpu/ActiveRotatingFilter_cpu.cpp',
+        #              'src/cpu/RotationInvariantEncoding_cpu.cpp',
+        #              'src/cuda/ActiveRotatingFilter_cuda.cu',
+        #              'src/cuda/RotationInvariantEncoding_cuda.cu',
+        #              ]),
+        CUDAExtension('orn_cuda',
+                      ['src/vision.cpp',
+                      'src/cpu/ActiveRotatingFilter_cpu.cpp',
+                      'src/cpu/RotationInvariantEncoding_cpu.cpp',
+                      'src/cuda/ActiveRotatingFilter_cuda.cu',
+                      'src/cuda/RotationInvariantEncoding_cuda.cu',
+                      ]),
     ],
     cmdclass={'build_ext': BuildExtension})

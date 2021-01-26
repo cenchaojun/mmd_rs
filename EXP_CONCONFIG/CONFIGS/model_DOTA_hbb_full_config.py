@@ -20,7 +20,7 @@ def gen_dict(name, config,
         Task2_results = work_dir + '/Task2_results_nms',
         Task2_results_split = work_dir + '/Task2_results',
         dota_eval_results=work_dir + '/dota_eval_results.json',
-        type='HBB'
+        bbox_type='HBB'
     )
 
 hbb_root = './DOTA_configs/DOTA_hbb'

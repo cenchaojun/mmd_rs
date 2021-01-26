@@ -1,0 +1,6 @@
+我们有多种计算obbloss的方法。
+对此，我们设置两种Anchor，并将Anchor进行旋转、平移等操作来获得target
+由此，我们可以获得多个obb_loss。同时我们计算target和anchor的IOU。
+最后，我们计算IOU和obb的相关性。并绘制散点图。
+
+我们使用poly的方式表示Anchor和target。

@@ -197,6 +197,35 @@ class RbboxHeadRS(nn.Module):
                 #     bbox_weights[pos_inds.type(torch.bool)])
             else:
                 losses['loss_bbox'] = bbox_pred.sum() * 0
+        # ###########################################################
+        from mmdet.MARK import PRINT_RBBOX_HEAD_RS_LOSS
+        if torch.sum(pos_inds) > 0:
+            # pos_inds = pos_inds[0:min(len(pos_inds), 10)]
+            pred_score = cls_score[pos_inds].softmax(1)
+            pred_score, pred_label = torch.max(pred_score, dim=1)
+
+            # 前景标签
+            pred_f_indices = pred_label != bg_class_ind
+
+            # from EXP_CONCONFIG.MARK import PRINT_RBBOX_HEAD
+            # PRINT_RBBOX_HEAD = True
+            pos_loss = self.loss_cls(
+                cls_score[pos_inds], labels[pos_inds], label_weights[pos_inds])
+            pos_acc = accuracy(cls_score[pos_inds], labels[pos_inds])
+
+            if torch.sum(pred_f_indices) > 0:
+                print('#'*80)
+                print('pred_score:', pred_score[pred_f_indices].detach().cpu().numpy())
+                print('pred_label:', pred_label[pred_f_indices].detach().cpu().numpy())
+                print('gt_label:',  labels[pos_inds][pred_f_indices].detach().cpu().numpy())
+                print('pos loss: %.2f' % float(pos_loss),
+                      '   || pos acc: %.2f' % float(pos_acc))
+                print('total_loss:', float(losses['loss_cls']))
+                print('%d, %d' % (int(torch.sum(pos_inds)), len(cls_score)))
+                print(torch.sum(label_weights))
+
+                print('#'*80)
+            # ###########################################################
         return losses
 
     @force_fp32(apply_to=('cls_score', 'bbox_pred'))

@@ -67,3 +67,24 @@ git push origin master
 
 16. git reset --hard
 重设头部，
+
+17. git branch iss53
+创建分支
+
+18. git checkout iss53
+切换分支
+
+19. git branch -a
+查看所有分支
+
+20. git push origin localbranch:localbranch
+将localbranch推送到服务器，远程分支与本地分支同名
+
+21. git push origin --delete localbranch
+删除远程分支
+
+22. git checkout -b 本地新建的分支名 origin/线上分支名
+切换到新分支，并且跟踪线上分支（push和pull）
+
+23. git branch
+查看本地分支

@@ -1,5 +1,5 @@
 dataset_type = 'CocoDataset'
-data_root = 'data/DIOR/'
+data_root = 'data/NWPU_VHR_10/'
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 train_pipeline = [
@@ -27,32 +27,30 @@ test_pipeline = [
             dict(type='Collect', keys=['img']),
         ])
 ]
-cat_name_list = ['ship', 'overpass', 'tenniscourt', 'stadium', 'vehicle',
-                 'airplane', 'storagetank', 'dam', 'golffield', 'trainstation',
-                 'Expressway-Service-area', 'groundtrackfield', 'Expressway-toll-station',
-                 'windmill', 'airport', 'harbor', 'baseballfield',
-                 'basketballcourt', 'bridge', 'chimney']
-num_classes = len(cat_name_list) # 20
+cat_name_list =['airplane', 'ship', 'storage tank', 'baseball diamond', 'tennis court',
+                'basketball court', 'ground track field', 'harbor', 'bridge', 'vehicle']
+
+num_classes = len(cat_name_list) # 10
 data = dict(
     samples_per_gpu=4,
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'coco_annotations/train_val_coco_ann.json',
-        img_prefix=data_root + 'JPEGImages-trainval',
+        ann_file=data_root + 'train_val_coco_ann.json',
+        img_prefix=data_root + 'images',
         classes=cat_name_list,
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'coco_annotations/test_coco_ann.json',
-        img_prefix=data_root + 'JPEGImages-test',
+        ann_file=data_root + 'test_coco_ann.json',
+        img_prefix=data_root + 'images',
         classes=cat_name_list,
         pipeline=test_pipeline),
     test=dict(
         type=dataset_type,
-        ann_file=data_root + 'coco_annotations/test_coco_ann.json',
-        img_prefix=data_root + 'JPEGImages-test',
+        ann_file=data_root + 'test_coco_ann.json',
+        img_prefix=data_root + 'images',
         classes=cat_name_list,
         pipeline=test_pipeline))
 evaluation = dict(interval=1, metric='bbox')
-max_bbox_per_img = 600
+max_bbox_per_img = 100

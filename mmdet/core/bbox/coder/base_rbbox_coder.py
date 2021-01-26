@@ -1,7 +1,7 @@
 from abc import ABCMeta, abstractmethod
 
 
-class BaseBBoxCoder(metaclass=ABCMeta):
+class BaseRBBoxCoder(metaclass=ABCMeta):
     """Base bounding box coder."""
 
     def __init__(self, **kwargs):
@@ -17,3 +17,12 @@ class BaseBBoxCoder(metaclass=ABCMeta):
         """Decode the predicted bboxes according to prediction and base
         boxes."""
         pass
+
+    @abstractmethod
+    def to_obb(self, bboxes, type):
+        """Decode the predicted bboxes according to prediction and base
+        boxes."""
+        pass
+
+
+

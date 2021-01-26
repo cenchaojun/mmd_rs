@@ -17,6 +17,8 @@ __all__ = [
 #########################################################
 from .anchor_generator_ad import AnchorGeneratorAD
 from .anchor_generator_rs import AnchorGeneratorRS
+from .anchor_generator_rotated_s2a import AnchorGeneratorRotated
 
 __all__.extend(['AnchorGeneratorAD',
-                'AnchorGeneratorRS'])
+                'AnchorGeneratorRS',
+                'AnchorGeneratorRotated'])

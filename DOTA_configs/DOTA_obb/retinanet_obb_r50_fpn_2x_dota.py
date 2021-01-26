@@ -1,10 +1,4 @@
-# _base_ = [
-#     '../_base_/models/retinanet_r50_fpn.py',
-#     '../_base_/datasets/DOTA_train_val_obb.py',
-#     '../_base_/schedules/schedule_2x_rs.py',
-#     '../_base_/default_runtime.py'
-# ]
-
+# 从ad中迁移过来的。
 
 # model settings
 model = dict(

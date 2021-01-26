@@ -2,11 +2,11 @@ import torch
 
 from .base_bbox_coder import BaseBBoxCoder
 from ..builder import BBOX_CODERS
-from ..transforms_rotated import delta2bbox_rotated, bbox2delta_rotated
+from ..transforms_rotated_s2a import delta2bbox_rotated, bbox2delta_rotated
 
 
 @BBOX_CODERS.register_module
-class DeltaXYWHABBoxCoder(BaseBBoxCoder):
+class DeltaXYWHABBoxCoderS2A(BaseBBoxCoder):
     """Delta XYWHA BBox coder.
 
     Following the practice in `R-CNN <https://arxiv.org/abs/1311.2524>`_,

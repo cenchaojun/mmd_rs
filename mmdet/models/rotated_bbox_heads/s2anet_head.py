@@ -6,11 +6,11 @@ import torch.nn as nn
 from mmcv.cnn import normal_init
 
 from mmdet.core import (anchor_target, delta2bbox_rotated, AnchorGeneratorRotated,
-                        force_fp32, multi_apply, multiclass_nms_rotated)
+                        force_fp32, multi_apply, multiclass_nms_rbbox)
 from ..builder import build_loss
-from ..registry import HEADS
+from ..builder import HEADS
 from ..utils import ConvModule, bias_init_with_prob
-from ...ops import DeformConv
+from ...ops import deform_conv
 from ...ops.orn import ORConv2d, RotationInvariantPooling
 
 
@@ -44,7 +44,9 @@ class S2ANetHead(nn.Module):
                      alpha=0.25,
                      loss_weight=1.0),
                  loss_odm_bbox=dict(
-                     type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0)):
+                     type='SmoothL1Loss', beta=1.0 / 9.0, loss_weight=1.0),
+                 train_cfg=None,
+                 test_cfg=None):
         super(S2ANetHead, self).__init__()
         self.num_classes = num_classes
         self.in_channels = in_channels
@@ -529,7 +531,7 @@ class S2ANetHead(nn.Module):
             # Add a dummy background class to the front when using sigmoid
             padding = mlvl_scores.new_zeros(mlvl_scores.shape[0], 1)
             mlvl_scores = torch.cat([padding, mlvl_scores], dim=1)
-        det_bboxes, det_labels = multiclass_nms_rotated(mlvl_bboxes,
+        det_bboxes, det_labels = multiclass_nms_rbbox(mlvl_bboxes,
                                                         mlvl_scores,
                                                         cfg.score_thr, cfg.nms,
                                                         cfg.max_per_img)
@@ -571,7 +573,7 @@ class AlignConv(nn.Module):
                  deformable_groups=1):
         super(AlignConv, self).__init__()
         self.kernel_size = kernel_size
-        self.deform_conv = DeformConv(in_channels,
+        self.deform_conv = deform_conv.DeformConv2d(in_channels,
                                       out_channels,
                                       kernel_size=kernel_size,
                                       padding=(kernel_size - 1) // 2,

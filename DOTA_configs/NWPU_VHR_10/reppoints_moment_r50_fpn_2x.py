@@ -1,4 +1,4 @@
-from DOTA_configs.DIOR_ms_test.a_base_config import *
+from DOTA_configs.NWPU_VHR_10.a_base_config import *
 _base_ = [
     dataset_config,
     '../_base_/schedules/schedule_2x_rs.py',

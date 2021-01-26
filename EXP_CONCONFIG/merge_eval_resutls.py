@@ -1,51 +1,50 @@
 import json
 import os
 import os.path as osp
+import pandas as pd
+from collections import OrderedDict
 results = dict()
 
-def get_eval_res(root):
-    if not osp.isdir(root):
-        return
-    print(root)
-    for f in os.listdir(root):
-        fp = osp.join(root, f)
-        if osp.isdir(fp):
-            get_eval_res(fp)
-            continue
-        if f == 'eval_results.txt':
-            with open(fp, 'r') as file:
-                r = eval(file.read())
-            results[osp.split(root)[1]] = r
+# from EXP_CONCONFIG.model_DOTA_hbb_tv_config import cfgs, show_dict
+# from EXP_CONCONFIG.model_DOTA_obb_tv_config import obb_cfgs
+from EXP_CONCONFIG.CONFIGS.model_DIOR_full_config import DIOR_cfgs
+from EXP_CONCONFIG.CONFIGS.model_DIOR_full_ms_test_config import DIOR_ms_test_cfgs
+from EXP_CONCONFIG.CONFIGS.model_NWPU_VHR_10_config import NV10_cfgs
+from EXP_CONCONFIG.model_DIOR_full_voc_test_config import DIOR_voc_cfgs
+# cfgs.update(obb_cfgs)
+# cfgs.update(DIOR_cfgs)
+cfgs = DIOR_voc_cfgs
+# cfgs.update(DIOR_ms_test_cfgs)
+# cfgs.update(NV10_cfgs)
 
-def merge_eval_res(rs):
-    m_rs = dict(
-        name=[]
-    )
-    for model, r in rs.items():
-        m_rs['name'].append(model)
-        for k, v in r.items():
-            if k not in m_rs:
-                m_rs[k] = []
-            m_rs[k].append(v)
-    return m_rs
+eval_results = dict()
+for model_name, cfg in cfgs.items():
+    work_dir = cfg['work_dir']
+    # 模型评估结果存在
+    if os.path.exists(cfg['eval_results']):
+        with open(cfg['eval_results'], 'r') as f:
+            s = f.read()
+            print(model_name, s)
+            results = eval(s)
+            if type(results) == OrderedDict:
+                reuslts = dict(results)
+            if not reuslts:
+                continue
+            if 'bbox_mAP_copypaste' in results.keys():
+                results.pop('bbox_mAP_copypaste')
+            if 'results_per_category' in results.keys():
+                cat_ap = results.pop('results_per_category')
+                for (cat, ap) in cat_ap:
+                    results[cat] = ap
 
-# with open('../reuslts/retinanet_hbb_tv/eval_reuslts.txt', 'r') as f:
-#     r = eval(f.read())
-get_eval_res('../results')
-print(results)
-merged_results = merge_eval_res(results)
-print(merged_results)
+            for k, v in results.items():
+                results[k] = float('%.3f' % float(v))
 
-n_model = len(merged_results['name'])
-for i, l in merged_results.items():
-    assert len(l) == n_model
+        eval_results[model_name] = results
 
-import pandas as pd
-df = pd.DataFrame(merged_results,
-                  index=range(0, n_model),
-                  columns=merged_results.keys())
-
-writer = pd.ExcelWriter('./eval_results.xlsx')#创建数据存放路径
-df.to_excel(writer)
+df = pd.DataFrame(eval_results)
+df2 = pd.DataFrame(df.values.T, index=df.columns, columns=df.index)  # 转置
+writer = pd.ExcelWriter('./DIOR_voc_epoch12_eval_results.xlsx')#创建数据存放路径
+df2.to_excel(writer)
 writer.save()#文件保存
 writer.close()#文件关闭

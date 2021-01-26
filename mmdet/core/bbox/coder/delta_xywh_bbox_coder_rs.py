@@ -27,7 +27,7 @@ class DeltaXYWHBBoxCoderRS(BaseBBoxCoder):
         self.means = target_means
         self.stds = target_stds
 
-    def encode(self, bboxes, gt_bboxes):
+    def encode(self, bboxes, gt_bboxes, use_mod=False):
         """Get box regression transformation deltas that can be used to
         transform the ``bboxes`` into the ``gt_bboxes``.
 
@@ -42,14 +42,15 @@ class DeltaXYWHBBoxCoderRS(BaseBBoxCoder):
 
         assert bboxes.size(0) == gt_bboxes.size(0)
         assert bboxes.size(-1) == gt_bboxes.size(-1) == 4
-        encoded_bboxes = bbox2delta(bboxes, gt_bboxes, self.means, self.stds)
+        encoded_bboxes = bbox2delta(bboxes, gt_bboxes, self.means, self.stds, use_mod)
         return encoded_bboxes
 
     def decode(self,
                bboxes,
                pred_bboxes,
                max_shape=None,
-               wh_ratio_clip=16 / 1000):
+               wh_ratio_clip=16 / 1000,
+               use_mod=False):
         """Apply transformation `pred_bboxes` to `boxes`.
 
         Args:
@@ -71,7 +72,7 @@ class DeltaXYWHBBoxCoderRS(BaseBBoxCoder):
         return decoded_bboxes
 
 
-def bbox2delta(proposals, gt, means=(0., 0., 0., 0.), stds=(1., 1., 1., 1.)):
+def bbox2delta(proposals, gt, means=(0., 0., 0., 0.), stds=(1., 1., 1., 1.), use_mod=False):
     """Compute deltas of proposals w.r.t. gt.
 
     We usually compute the deltas of x, y, w, h of proposals w.r.t ground
@@ -123,7 +124,8 @@ def delta2bbox(rois,
                means=(0., 0., 0., 0.),
                stds=(1., 1., 1., 1.),
                max_shape=None,
-               wh_ratio_clip=16 / 1000):
+               wh_ratio_clip=16 / 1000,
+               use_mod=False):
     """Apply deltas to shift/scale base boxes.
 
     Typically the rois are anchor or proposed bounding boxes and the deltas are

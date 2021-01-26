@@ -9,7 +9,7 @@ from .base_bbox_coder import BaseBBoxCoder
 
 
 @BBOX_CODERS.register_module()
-class DeltaXYWHARbboxCoderAD(BaseBBoxCoder):
+class DeltaXYWHARbboxCoderADTypeRS(BaseBBoxCoder):
     def __init__(self,
                  target_means=(0., 0., 0., 0.),
                  target_stds=(1., 1., 1., 1.),
@@ -27,9 +27,10 @@ class DeltaXYWHARbboxCoderAD(BaseBBoxCoder):
         :return:
         """
         assert rbboxes.size(0) == gt_rbboxes.size(0)
-        # assert rbboxes.size(-1) in [4, 5] \
-        #        and gt_rbboxes.size(-1) == 5
-        encoded_bboxes = rbbox2delta(rbboxes, gt_rbboxes, self.means, self.stds, self.use_mod)
+        assert rbboxes.size(-1) == 5  \
+               and gt_rbboxes.size(-1) == 5
+        encoded_bboxes = rbbox2delta(rbboxes, gt_rbboxes,
+                                     self.means, self.stds)
         return encoded_bboxes
 
     def decode(self,
@@ -47,6 +48,8 @@ class DeltaXYWHARbboxCoderAD(BaseBBoxCoder):
         """
 
         assert deltas.size(0) == rbboxes.size(0)
+        assert rbboxes.size(-1) == 5  \
+               and deltas.size(-1) == 5
 
         decoded_bboxes = delta2rbbox(rbboxes, deltas,
                                      self.means, self.stds,
@@ -58,7 +61,7 @@ class DeltaXYWHARbboxCoderAD(BaseBBoxCoder):
         if type == 'hbb':
             return hbb2obb(org_bboxes)
         if type == 'mask':
-            return gt_mask_bp_obbs_list(org_bboxes)
+            return gt_mask_bp_obbs(org_bboxes)
         if type == 'poly':
             raise Exception('Not finished yet ')
             return polygonToRotRectangle_batch(org_bboxes)
@@ -124,17 +127,21 @@ def mask2poly(binary_mask_list):
 def gt_mask_bp_obbs(gt_masks, with_module=True):
 
     # trans gt_masks to gt_obbs
-    gt_polys = mask2poly(gt_masks)
-    gt_bp_polys = get_best_begin_point(gt_polys)
-    gt_obbs = polygonToRotRectangle_batch(gt_bp_polys, with_module)
+    if len(gt_masks) >= 1:
+        gt_polys = mask2poly(gt_masks)
+        gt_bp_polys = get_best_begin_point(gt_polys)
+        gt_obbs = polygonToRotRectangle_batch(gt_bp_polys, with_module)
+    else:
+        gt_obbs = []
+        print('gt_masks shape: %s, no mask' % str(gt_masks.shape))
 
     return gt_obbs
 
-def gt_mask_bp_obbs_list(gt_masks_list):
-
-    gt_obbs_list = map(gt_mask_bp_obbs, gt_masks_list)
-
-    return list(gt_obbs_list)
+# def gt_mask_bp_obbs_list(gt_masks_list):
+#
+#     gt_obbs_list = map(gt_mask_bp_obbs, gt_masks_list)
+#
+#     return list(gt_obbs_list)
 
 def cal_line_length(point1, point2):
     return math.sqrt( math.pow(point1[0] - point2[0], 2) + math.pow(point1[1] - point2[1], 2))

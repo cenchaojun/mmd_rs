@@ -26,17 +26,6 @@ import sys
 # import DOTA_devkit.ResultMerge_multi_process as RM
 from DOTA_devkit.ResultMerge_multi_process import *
 # import pdb; pdb.set_trace()
-def parse_args(args=''):
-    parser = argparse.ArgumentParser(description='Train a detector')
-    parser.add_argument('--config', default='configs/DOTA/faster_rcnn_r101_fpn_1x_dota2_v3_RoITrans_v5.py')
-    parser.add_argument('--type', default=r'HBB',
-                        help='parse type of detector')
-    if args == '':
-        args = parser.parse_args()
-    else:
-        args = parser.parse_args(args)
-
-    return args
 
 def OBB2HBB(srcpath, dstpath):
     filenames = util.GetFileFromThisRootDir(srcpath)
@@ -126,40 +115,67 @@ def parse_results(config_file, resultfile, dstpath, type):
         mergebyrec(os.path.join(dstpath, 'Task2_results'),
             os.path.join(dstpath, 'Task2_results_nms'))
 
+
+def parse_args(args=''):
+    parser = argparse.ArgumentParser(description='Train a detector')
+    parser.add_argument('-config', default='configs/DOTA/faster_rcnn_r101_fpn_1x_dota2_v3_RoITrans_v5.py')
+    parser.add_argument('-type', default=r'HBB',
+                        help='parse type of detector')
+    parser.add_argument('-result',
+                        help='pkl result file')
+    parser.add_argument('-out',
+                        help='out put folder')
+    if args == '':
+        args = parser.parse_args()
+    else:
+        args = parser.parse_args(args)
+
+    return args
+
+
 if __name__ == '__main__':
-    # args = ['--config',
-    #         '../configs/DOTA/faster_rcnn_RoITrans_r50_fpn_1x_dota.py',
-    #         '--type', 'OBB']
-    # args = parse_args(args)
-    # print(args)
-    #
-    # config_file = args.config
-    # config_name = os.path.splitext(os.path.basename(config_file))[0]
-    # pkl_file = os.path.join('./results', config_name, 'results.pkl')
-    # output_path = os.path.join('./results', config_name)
-    # type = args.type
-
-    # config_file = './configs/DOTA_test/retinanet_obb_r50_fpn_2x_dota.py'
-    # pkl_file = './results/retinanet_obb_tv/result.pkl'
-    # output_path = './results/retinanet_obb_tv'
-    # type = 'OBB'
     os.chdir('../')
+    from EXP_CONCONFIG.CONFIGS.model_DOTA_obb_tv_config import obb_cfgs
+    cfgs = obb_cfgs
+    # # config_file = './configs/DOTA_test/retinanet_obb_r50_fpn_2x_dota.py'
+    # # pkl_file = './results/retinanet_obb_tv/result.pkl'
+    # # output_path = './results/retinanet_obb_tv'
 
 
-    config_file = './configs/DOTA_test/retinanet_obb_r50_fpn_2x_dota.py'
-    pkl_file = './results/retinanet_hbb_tv/result.pkl'
-    output_path = './results/retinanet_obb_tv'
-    type = 'HBB'
-
-    from EXP_CONCONFIG.model_hbb_tv_config import cfgs
-    for cfg in cfgs.values():
-        config_file = cfg['config']
-        pkl_file = cfg['result']
-        output_path = cfg['work_dir']
-
-        if os.path.exists(output_path) and \
-            os.path.exists(pkl_file):
-            parse_results(config_file, pkl_file, output_path, type)
-        else:
-            print('')
+    args = parse_args()
+    # # args = ['--config',
+    # #         '../configs/DOTA/faster_rcnn_RoITrans_r50_fpn_1x_dota.py',
+    # #         '--type', 'OBB']
+    # # args = parse_args(args)
+    # # print(args)
+    # #
+    # # config_file = args.config
+    # # config_name = os.path.splitext(os.path.basename(config_file))[0]
+    # # pkl_file = os.path.join('./results', config_name, 'results.pkl')
+    # # output_path = os.path.join('./results', config_name)
+    # # type = args.type
+    #
+    # # config_file = './configs/DOTA_test/retinanet_obb_r50_fpn_2x_dota.py'
+    # # pkl_file = './results/retinanet_obb_tv/result.pkl'
+    # # output_path = './results/retinanet_obb_tv'
+    # # type = 'OBB'
+    # os.chdir('../')
+    #
+    #
+    # config_file = './configs/DOTA_test/retinanet_obb_r50_fpn_2x_dota.py'
+    # pkl_file = './results/retinanet_hbb_tv/result.pkl'
+    # output_path = './results/retinanet_obb_tv'
+    # type = 'HBB'
+    #
+    # from EXP_CONCONFIG.model_hbb_tv_config import cfgs
+    # for cfg in cfgs.values():
+    #     config_file = cfg['config']
+    #     pkl_file = cfg['result']
+    #     output_path = cfg['work_dir']
+    #
+    #     if os.path.exists(output_path) and \
+    #         os.path.exists(pkl_file):
+    #         parse_results(config_file, pkl_file, output_path, type)
+    #     else:
+    #         print('')
 

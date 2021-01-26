@@ -4,10 +4,10 @@ import torch.nn as nn
 from mmdet.core import bbox2result
 from ..builder import DETECTORS, build_backbone, build_head, build_neck
 from .base import BaseDetector
-
+from mmdet.core.bbox import poly_to_rotated_box_single
 
 @DETECTORS.register_module()
-class SingleStageDetectorRS(BaseDetector):
+class SingleStageDetectorPolyRS(BaseDetector):
     """Base class for single-stage detectors.
 
     Single-stage detectors directly and densely predict bounding boxes on the
@@ -21,7 +21,7 @@ class SingleStageDetectorRS(BaseDetector):
                  train_cfg=None,
                  test_cfg=None,
                  pretrained=None):
-        super(SingleStageDetectorRS, self).__init__()
+        super(SingleStageDetectorPolyRS, self).__init__()
         self.backbone = build_backbone(backbone)
         if neck is not None:
             self.neck = build_neck(neck)
@@ -39,7 +39,7 @@ class SingleStageDetectorRS(BaseDetector):
             pretrained (str, optional): Path to pre-trained weights.
                 Defaults to None.
         """
-        super(SingleStageDetectorRS, self).init_weights(pretrained)
+        super(SingleStageDetectorPolyRS, self).init_weights(pretrained)
         self.backbone.init_weights(pretrained=pretrained)
         if self.with_neck:
             if isinstance(self.neck, nn.Sequential):
@@ -92,6 +92,7 @@ class SingleStageDetectorRS(BaseDetector):
             dict[str, Tensor]: A dictionary of loss components.
         """
         x = self.extract_feat(img)
+        gt_bboxes = poly_to_rotated_box_single(gt_masks)
         losses = self.bbox_head.forward_train(x, img_metas, gt_bboxes,
                                               gt_masks,
                                               gt_labels, gt_bboxes_ignore,

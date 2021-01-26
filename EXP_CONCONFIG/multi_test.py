@@ -3,18 +3,6 @@ import time
 from pynvml import *
 import numpy as np
 
-# def sleep(name, sleep_time, total_rsc):
-#     for i in range(sleep_time):
-#         print('%s has sleep %d / %d' % (name, i, sleep_time))
-#         time.sleep(1)
-#     total_rsc.value += 1
-#
-# def show_num(name, num_list, total_rsc):
-#     for num in num_list:
-#         print('%s : %d' % (name, num))
-#         time.sleep(1)
-#     total_rsc.value += 1
-
 def modify_pycmd(cmd, gpus=None, ctrl=None):
     """
 
@@ -44,7 +32,7 @@ def get_gpu_infos(deviceCount):
                           used=info.used / 1024 ** 3))
     return infos
 
-def get_available_gpu_ids(deviceCount, max_used=1):
+def get_available_gpu_ids(deviceCount, max_used=10):
     infos = get_gpu_infos(deviceCount)
     av_ids = []
     for id, info in enumerate(infos):
@@ -54,6 +42,62 @@ def get_available_gpu_ids(deviceCount, max_used=1):
 
 
 if __name__ == "__main__":
+    # 自动化测试命令
+    from EXP_CONCONFIG.CONFIGS.model_DIOR_full_config import DIOR_cfgs
+    from EXP_CONCONFIG.CONFIGS.model_DIOR_full_ms_test_config import DIOR_ms_test_cfgs
+    from EXP_CONCONFIG.CONFIGS.model_NWPU_VHR_10_config import NV10_cfgs
+    from EXP_CONCONFIG.model_DIOR_full_voc_test_config import DIOR_voc_cfgs
+
+
+    cfgs = DIOR_voc_cfgs
+    # cfgs.update(DIOR_cfgs)
+    cmds = []
+    # 筛选出已经训练好的模型，并形成commands
+    for model_name, cfg in cfgs.items():
+        work_dir = cfg['work_dir']
+        # 模型存在
+        if os.path.exists(work_dir):
+            work_files = os.listdir(work_dir)
+            # 模型训练完毕
+            if os.path.exists(cfg['cp_file']):
+                # print(cfg['result'])
+                # 已经存在结果
+                # if not os.path.exists(cfg['result']):
+                #     pass
+                # else:
+                print('%-80s \tLOAD RESULTS'%model_name)
+                cmds.append('python py_cmd.py %s -m voc_test' % model_name)
+        ################################
+        # work_dir = cfg['work_dir']
+        # # 模型存在
+        # if os.path.exists(work_dir):
+        #     work_files = os.listdir(work_dir)
+        #     # 模型训练完毕
+        #     if os.path.exists(cfg['cp_file']):
+        #         # print(cfg['result'])
+        #         # 已经存在结果
+        #         if not os.path.exists(cfg['result']):
+        #             print('%-80s \tDO Inference' % model_name)
+        #             cmds.append('python py_cmd.py %s -m test' % model_name)
+        #         else:
+        #             print('%-80s \tLOAD RESULTS'%model_name)
+        #             cmds.append('python py_cmd.py %s -m test -load_results' % model_name)
+        ##############################
+        # work_dir = cfg['work_dir']
+        # # 模型存在
+        # if os.path.exists(work_dir):
+        #     work_files = os.listdir(work_dir)
+        #     # 模型训练完毕
+        #     if os.path.exists(cfg['cp_file']):
+        #         print(cfg['result'])
+        #         # 不存在result文件
+        #         if not os.path.exists(cfg['result']):
+        #             cmds.append('python py_cmd.py %s -m test' % model_name)
+
+    for cmd in cmds:
+        print(cmd)
+
+    # 最大同时存在的task数目
     MAX_TASK = 2
 
     nvmlInit()  # 初始化
@@ -66,15 +110,19 @@ if __name__ == "__main__":
         handle = nvmlDeviceGetHandleByIndex(i)
         print("GPU", i, ":", nvmlDeviceGetName(handle))
 
+    # 允许使用的GPU
+    allowed_gpus = [8, 9]
     # 已经使用的GPU列表(已经分配的)
+
     used_gpu = multiprocessing.Array("i", np.zeros(deviceCount, dtype=np.int).tolist())
     # running_task =  multiprocessing.Array("i", np.zeros(deviceCount, dtype=np.int).tolist())
 
     # 在这里设置队伍列表
-    tasks = [
-        dict(fun=modify_pycmd, kwargs=dict(cmd='python py_cmd.py DIOR_libra_faster_rcnn_full -m test',ctrl=used_gpu), used_gpu=1),
-        dict(fun=modify_pycmd, kwargs=dict(cmd='python py_cmd.py DIOR_pafpn_full -m test',ctrl=used_gpu), used_gpu=1),
-    ]
+    # tasks = [
+    #     dict(fun=modify_pycmd, kwargs=dict(cmd='python py_cmd.py DIOR_libra_faster_rcnn_full -m test',ctrl=used_gpu), used_gpu=1),
+    #     dict(fun=modify_pycmd, kwargs=dict(cmd='python py_cmd.py DIOR_pafpn_full -m test',ctrl=used_gpu), used_gpu=1),
+    # ]
+    tasks = [dict(fun=modify_pycmd, kwargs=dict(cmd=cmd, ctrl=used_gpu),used_gpu=1) for cmd in cmds]
     task_id = 0
     p_list = []
 
@@ -89,13 +137,15 @@ if __name__ == "__main__":
         available_gpu_ids = get_available_gpu_ids(deviceCount)
         used_gpu_ids = np.arange(deviceCount)[np.array(list(used_gpu), dtype=np.bool)].tolist()
         available_gpu_ids = list(set(available_gpu_ids) - set(used_gpu_ids))
+        not_allowed_gpus = set(list(range(deviceCount))) - set(allowed_gpus)
+        available_gpu_ids = list(set(available_gpu_ids) - set(not_allowed_gpus))
 
         # 如果没有足够GPU可以使用，则继续检查
         if len(available_gpu_ids) < task_used:
             print('Wait')
             time.sleep(1)
             continue
-        if np.sum(np.array(list(used_gpu))) >= 2:
+        if np.sum(np.array(list(used_gpu))) >= MAX_TASK:
             print('Wait')
             time.sleep(1)
             continue

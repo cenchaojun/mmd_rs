@@ -1,8 +1,8 @@
 import argparse
 import os
 ####################################################
-os.environ["CUDA_VISIBLE_DEVICES"] = '8'
-LOAD_RESULT=True
+os.environ["CUDA_VISIBLE_DEVICES"] = '7'
+LOAD_RESULT=False
 ####################################################
 
 import warnings
@@ -127,16 +127,33 @@ def main():
     #         '--out', './results/faster_rcnn_hbb_tv/results.pkl',
     #         ]
 
-    # args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_dota.py',
-    #         './results/retinanet_obb_tv_ver1_cv2_no_trick/epoch_24.pth',
-    #         '--out', './results/retinanet_obb_tv_ver1_cv2_no_trick/results.pkl',
-    #         ]
+    args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_ad.py',
+            './results/DOTA_retina_ad_obb_tv/epoch_24.pth',
+            '--out', './results/DOTA_retina_ad_obb_tv/results.pkl',
+            ]
     #
+    #
+    # args = ['./DOTA_configs/DIOR/retinanet_r50_fpn_2x.py',
+    #         './results/DIOR_retinanet_full/epoch_24.pth',
+    #         '--out', './results/DIOR_retinanet_full/results.pkl',
+    #          '--eval', 'bbox'
+    #         ]
+    # args = ['./DOTA_configs/DOTA_obb/s2anet_r50_fpn_1x_dota.py',
+    #         './results/DOTA_s2anet_obb_tv/epoch_24.pth',
+    #         '--out', './results/DOTA_s2anet_obb_tv/results.pkl',
+    #          '--eval', 'bbox'
+    #         ]
+    # args = ['./DOTA_configs/DIOR_voc_test/retinanet_r50_fpn_2x.py',
+    #         './results/DIOR_retinanet_full/epoch_24.pth',
+    #         '--out', './results/DIOR_retinanet_full/results.pkl',
+    #          '--eval', 'mAP'
+    #         ]
 
-    args = ['./DOTA_configs/DIOR/retinanet_r50_fpn_2x.py',
-            './results/DIOR_retinanet_full/epoch_24.pth',
-            '--out', './results/DIOR_retinanet_full/results.pkl',
-             '--eval', 'bbox'
+
+
+    args = ['./DOTA_configs/DOTA_obb/faster_rcnn_RoITrans_r50_fpn_1x_dota.py',
+            './results/DOTA_faster_rcnn_RoITrans_tv/epoch_12.pth',
+            '--out', './results/DOTA_faster_rcnn_RoITrans_tv/results.pkl',
             ]
 
     args = parse_args(args)
@@ -254,8 +271,8 @@ def main():
             eval_kwargs.update(dict(metric=args.eval, **kwargs))
             ######################################
             # add class wise
-            eval_kwargs['classwise']=True
-            eval_kwargs['proposal_nums'] = (100, 300, 1000)
+            # eval_kwargs['classwise']=True
+            # eval_kwargs['proposal_nums'] = (100, 300, 1000)
             s = str(dataset.evaluate(outputs, **eval_kwargs))
             work_dir = os.path.split(str(args.out))[0]
             eval_file = os.path.join(work_dir, 'eval_results.txt')

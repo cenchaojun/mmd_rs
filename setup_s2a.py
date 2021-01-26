@@ -68,21 +68,6 @@ def get_hash():
 
     return sha
 
-
-def write_version_py():
-    content = """# GENERATED VERSION FILE
-# TIME: {}
-
-__version__ = '{}'
-short_version = '{}'
-"""
-    sha = get_hash()
-    VERSION = SHORT_VERSION + '+' + sha
-
-    with open(version_file, 'w') as f:
-        f.write(content.format(time.asctime(), VERSION, SHORT_VERSION))
-
-
 def get_version():
     with open(version_file, 'r') as f:
         exec(compile(f.read(), version_file, 'exec'))
@@ -131,104 +116,29 @@ def get_requirements(filename='requirements.txt'):
 
 
 if __name__ == '__main__':
-    write_version_py()
     setup(
-        name='mmdet',
-        version=get_version(),
-        description='Open MMLab Detection Toolbox and Benchmark',
-        long_description=readme(),
-        author='OpenMMLab',
-        author_email='chenkaidev@gmail.com',
-        keywords='computer vision, object detection',
-        url='https://github.com/open-mmlab/mmdetection',
-        packages=find_packages(exclude=('configs', 'tools', 'demo')),
-        package_data={'mmdet.ops': ['*/*.so']},
-        classifiers=[
-            'Development Status :: 4 - Beta',
-            'License :: OSI Approved :: Apache Software License',
-            'Operating System :: OS Independent',
-            'Programming Language :: Python :: 2',
-            'Programming Language :: Python :: 2.7',
-            'Programming Language :: Python :: 3',
-            'Programming Language :: Python :: 3.4',
-            'Programming Language :: Python :: 3.5',
-            'Programming Language :: Python :: 3.6',
-        ],
-        license='Apache License 2.0',
-        setup_requires=['pytest-runner', 'cython', 'numpy'],
-        tests_require=['pytest', 'xdoctest'],
-        install_requires=get_requirements(),
         ext_modules=[
-            make_cython_ext(
-                name='soft_nms_cpu',
-                module='mmdet.ops.nms',
-                sources=['src/soft_nms_cpu.pyx']),
             make_cuda_ext(
-                name='nms_cpu',
-                module='mmdet.ops.nms',
-                sources=['src/nms_cpu.cpp']),
+                name='box_iou_rotated_cuda',
+                module='mmdet.ops.box_iou_rotated',
+                sources=['src/box_iou_rotated_cpu.cpp',
+                         'src/box_iou_rotated_cuda.cu']),
             make_cuda_ext(
-                name='nms_cuda',
-                module='mmdet.ops.nms',
-                sources=['src/nms_cuda.cpp', 'src/nms_kernel.cu']),
-            make_cuda_ext(
-                name='roi_align_cuda',
-                module='mmdet.ops.roi_align',
-                sources=['src/roi_align_cuda.cpp', 'src/roi_align_kernel.cu']),
-            make_cuda_ext(
-                name='roi_pool_cuda',
-                module='mmdet.ops.roi_pool',
-                sources=['src/roi_pool_cuda.cpp', 'src/roi_pool_kernel.cu']),
+                name='orn_cuda',
+                module='mmdet.ops.orn',
+                sources=['src/vision.cpp',
+                         'src/cpu/ActiveRotatingFilter_cpu.cpp',
+                         'src/cpu/RotationInvariantEncoding_cpu.cpp',
+                         'src/cuda/ActiveRotatingFilter_cuda.cu',
+                         'src/cuda/RotationInvariantEncoding_cuda.cu',
+                         ]),
             make_cuda_ext(
                 name='deform_conv_cuda',
                 module='mmdet.ops.dcn',
                 sources=[
                     'src/deform_conv_cuda.cpp',
                     'src/deform_conv_cuda_kernel.cu'
-                ]),
-            make_cuda_ext(
-                name='deform_pool_cuda',
-                module='mmdet.ops.dcn',
-                sources=[
-                    'src/deform_pool_cuda.cpp',
-                    'src/deform_pool_cuda_kernel.cu'
-                ]),
-            make_cuda_ext(
-                name='sigmoid_focal_loss_cuda',
-                module='mmdet.ops.sigmoid_focal_loss',
-                sources=[
-                    'src/sigmoid_focal_loss.cpp',
-                    'src/sigmoid_focal_loss_cuda.cu'
-                ]),
-            make_cuda_ext(
-                name='masked_conv2d_cuda',
-                module='mmdet.ops.masked_conv',
-                sources=[
-                    'src/masked_conv2d_cuda.cpp', 'src/masked_conv2d_kernel.cu'
-                ]),
-            make_cuda_ext(
-                name='box_iou_rotated_cuda',
-                module='mmdet.ops.box_iou_rotated',
-                sources=['src/box_iou_rotated_cpu.cpp', 'src/box_iou_rotated_cuda.cu']),
-            make_cuda_ext(
-                name='nms_rotated_cuda',
-                module='mmdet.ops.nms_rotated',
-                sources=['src/nms_rotated_cpu.cpp', 'src/nms_rotated_cuda.cu']),
-            make_cuda_ext(
-                name='ml_nms_rotated_cuda',
-                module='mmdet.ops.ml_nms_rotated',
-                sources=['src/nms_rotated_cpu.cpp', 'src/nms_rotated_cuda.cu']),
-            make_cuda_ext(
-                name='roi_align_rotated_cuda',
-                module='mmdet.ops.roi_align_rotated',
-                sources=['src/ROIAlignRotated_cpu.cpp', 'src/ROIAlignRotated_cuda.cu']),
-            make_cuda_ext(
-                name='orn_cuda',
-                module='mmdet.ops.orn',
-                sources=['src/vision.cpp',
-                         'src/cpu/ActiveRotatingFilter_cpu.cpp', 'src/cpu/RotationInvariantEncoding_cpu.cpp',
-                         'src/cuda/ActiveRotatingFilter_cuda.cu', 'src/cuda/RotationInvariantEncoding_cuda.cu',
-                         ]),
+                ])
         ],
         cmdclass={'build_ext': BuildExtension},
         zip_safe=False)

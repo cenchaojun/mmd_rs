@@ -10,7 +10,8 @@ from mmdet.core import multiclass_nms_rbbox
 from ..builder import HEADS, build_loss
 from .base_dense_head_rs import BaseDenseHeadRS
 from .dense_test_mixins import BBoxTestMixin
-from mmdet.utils.dbbox_transform import cv2_mask2rbbox
+from mmdet.utils.dbbox_transform import cv2_mask2rbbox, cv2_mask2rbbox_mod
+use_mod = False
 
 
 @HEADS.register_module()
@@ -233,7 +234,10 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
         # others, iou < 0.4 -> assign_result.gt_inds = 0
         ########################################################
         # gt_masks = [gtm for gtm in gt_masks.masks]
-        gt_rbboxes = cv2_mask2rbbox(gt_masks)
+        # if use_mod:
+        #     gt_rbboxes = cv2_mask2rbbox_mod(gt_masks)
+        # else:
+        gt_rbboxes = self.bbox_coder.to_obb(gt_masks, type='mask')
         gt_rbboxes = gt_bboxes.new_tensor(gt_rbboxes)
 
         sampling_result = self.sampler.sample(assign_result, anchors,
@@ -253,8 +257,10 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
         # inds是anchors的index，而非sampling_result.bboxex
         if len(pos_inds) > 0:
             if not self.reg_decoded_bbox:
-                pos_bbox_targets = self.bbox_coder.encode(
-                    sampling_result.pos_bboxes, sampling_result.pos_gt_bboxes)
+                pos_bboxes = self.bbox_coder.to_obb(sampling_result.pos_bboxes
+                                                    , type='hbb')
+                pos_bbox_targets = self.bbox_coder.encode(pos_bboxes,
+                                                          sampling_result.pos_gt_bboxes)
             else:
                 pos_bbox_targets = sampling_result.pos_gt_bboxes
             bbox_targets[pos_inds, :] = pos_bbox_targets
@@ -435,7 +441,8 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
         bbox_pred = bbox_pred.permute(0, 2, 3, 1).reshape(-1, 5)
         if self.reg_decoded_bbox:
             anchors = anchors.reshape(-1, 4)
-            bbox_pred = self.bbox_coder.decode(anchors, bbox_pred)
+            r_anchors = self.bbox_coder.to_obb(anchors, type='hbb')
+            bbox_pred = self.bbox_coder.decode(r_anchors, bbox_pred)
         loss_bbox = self.loss_bbox(
             bbox_pred,
             bbox_targets,
@@ -683,8 +690,10 @@ class AnchorHeadRbboxRS(BaseDenseHeadRS, BBoxTestMixin):
                 anchors = anchors[topk_inds, :]
                 bbox_pred = bbox_pred[topk_inds, :]
                 scores = scores[topk_inds, :]
+            r_anchors = self.bbox_coder.to_obb(anchors, type='hbb')
+
             bboxes = self.bbox_coder.decode(
-                anchors, bbox_pred, max_shape=img_shape)
+                r_anchors, bbox_pred, max_shape=img_shape)
             mlvl_bboxes.append(bboxes)
             mlvl_scores.append(scores)
         mlvl_bboxes = torch.cat(mlvl_bboxes)

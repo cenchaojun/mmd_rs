@@ -6,7 +6,7 @@ from .anchor_head_rbbox_rs import AnchorHeadRbboxRS
 
 
 @HEADS.register_module()
-class RetinaHeadRbboxRS(AnchorHeadRbboxRS):
+class RetinaHeadRbboxCV2ModRS(AnchorHeadRbboxRS):
     r"""An anchor-based head used in `RetinaNet
     <https://arxiv.org/pdf/1708.02002.pdf>`_.
 
@@ -15,7 +15,7 @@ class RetinaHeadRbboxRS(AnchorHeadRbboxRS):
 
     Example:
         >>> import torch
-        >>> self = RetinaHead(11, 7)
+        >>> self = RetinaHeadRbboxCV2ModRS(11, 7)
         >>> x = torch.rand(1, 7, 32, 32)
         >>> cls_score, bbox_pred = self.forward_single(x)
         >>> # Each anchor predicts a score for each class except background
@@ -41,7 +41,7 @@ class RetinaHeadRbboxRS(AnchorHeadRbboxRS):
         self.stacked_convs = stacked_convs
         self.conv_cfg = conv_cfg
         self.norm_cfg = norm_cfg
-        super(RetinaHeadRbboxRS, self).__init__(
+        super(RetinaHeadRbboxCV2ModRS, self).__init__(
             num_classes,
             in_channels,
             anchor_generator=anchor_generator,

@@ -65,10 +65,13 @@ def prepare(srcpath, dstpath):
     """
     if not os.path.exists(os.path.join(dstpath, 'train')):
         os.mkdir(os.path.join(dstpath, 'train'))
-    if not os.path.exists(os.path.join(dstpath, 'valtest')):
-        os.mkdir(os.path.join(dstpath, 'valtest'))
+    if not os.path.exists(os.path.join(dstpath, 'val')):
+        os.mkdir(os.path.join(dstpath, 'val'))
     if not os.path.exists(os.path.join(dstpath, 'test')):
         os.mkdir(os.path.join(dstpath, 'test'))
+    if not os.path.exists(os.path.join(dstpath, 'train_val')):
+        os.mkdir(os.path.join(dstpath, 'train_val'))
+
 
     split_train = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'train'),
                        os.path.join(dstpath, 'train'),
@@ -79,7 +82,15 @@ def prepare(srcpath, dstpath):
     split_train.splitdata(1, split_mode='train')
 
     split_val = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'val'),
-                       os.path.join(dstpath, 'valtest'),
+                       os.path.join(dstpath, 'val'),
+                      gap=200,
+                      subsize=1024,
+                      num_process=32
+                      )
+    split_val.splitdata(1, split_mode='train')
+
+    split_val = ImgSplit_multi_process.splitbase(os.path.join(srcpath, 'train_val'),
+                       os.path.join(dstpath, 'train_val'),
                       gap=200,
                       subsize=1024,
                       num_process=32
@@ -100,14 +111,21 @@ def prepare(srcpath, dstpath):
     DOTA2COCOTrain(os.path.join(dstpath, 'train'),
                    os.path.join(dstpath, 'train', 'train_coco_ann.json'),
                    wordname_15, difficult='-1')
-    DOTA2COCOTrain(os.path.join(dstpath, 'valtest'),
-                   os.path.join(dstpath, 'valtest', 'val_test_coco_ann.json'),
+    DOTA2COCOTrain(os.path.join(dstpath, 'val'),
+                   os.path.join(dstpath, 'val', 'val_coco_ann.json'),
                    wordname_15, difficult='-1')
+    DOTA2COCOTrain(os.path.join(dstpath, 'train_val'),
+                   os.path.join(dstpath, 'train_val', 'train_val_coco_ann.json'),
+                   wordname_15, difficult='-1')
+    DOTA2COCOTest(os.path.join(dstpath, 'test'),
+                  os.path.join(dstpath, 'test', 'test_coco_ann.json'),
+                  wordname_15)
 
 if __name__ == '__main__':
     from commonlibs.common_tools import *
     # mkdir('../data/dota1_train_val_1024')
     # prepare('../data/dota', '../data/dota1_train_val_1024')
-    root = '../../data'
-    mkdir(root + '/dota1_train_val_1024')
-    prepare(root + '/dota', root + '/dota1_train_val_1024')
+    root = '/home/huangziyue/data'
+    mkdir(root + '/dota_1_1024_824')
+    prepare(root + '/dota',
+            root + '/dota_1_1024_824')

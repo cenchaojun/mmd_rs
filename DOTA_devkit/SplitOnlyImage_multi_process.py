@@ -2,7 +2,7 @@ import os
 import numpy as np
 import cv2
 import copy
-import dota_utils as util
+import DOTA_devkit.dota_utils as util
 from multiprocessing import Pool
 from functools import partial
 

@@ -189,6 +189,9 @@ class RbboxRoIHeadRS(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
             # pos_gt_labels_list = [res.pos_gt_labels for res in sampling_results]
             # print(pos_bboxes_list,
             #           pos_gt_bboxes_list)
+
+
+
         return losses
 
     def _bbox_forward(self, x, rois):
@@ -220,6 +223,8 @@ class RbboxRoIHeadRS(BaseRoIHead, BBoxTestMixin, MaskTestMixin):
                                         *bbox_targets)
 
         bbox_results.update(loss_bbox=loss_bbox)
+
+
         return bbox_results
 
     def _mask_forward_train(self, x, sampling_results, bbox_feats, gt_masks,

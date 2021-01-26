@@ -4,6 +4,15 @@ _base_ = [
     '../_base_/default_runtime.py'
 ]
 
+obb_module = dict(
+    bbox_coder=dict(
+        type='DeltaXYWHARbboxCoderADTypeRS',
+        target_means=[.0, .0, .0, .0, .0],
+        target_stds=[1.0, 1.0, 1.0, 1.0, 1.0]),
+    train_sampler=dict(type='PseudoSamplerRS'),
+    nms=dict(type='py_cpu_nms_poly_fast', iou_threshold=0.1)
+)
+
 # model settings
 model = dict(
     type='RetinaNetRS',
@@ -36,10 +45,7 @@ model = dict(
             scales_per_octave=3,
             ratios=[0.5, 1.0, 2.0],
             strides=[8, 16, 32, 64, 128]),
-        bbox_coder=dict(
-            type='DeltaXYWHARbboxCoderRS',
-            target_means=[.0, .0, .0, .0, .0],
-            target_stds=[1.0, 1.0, 1.0, 1.0, 1.0]),
+        bbox_coder=obb_module['bbox_coder'],
         loss_cls=dict(
             type='FocalLoss',
             use_sigmoid=True,
@@ -55,7 +61,7 @@ train_cfg = dict(
         neg_iou_thr=0.4,
         min_pos_iou=0,
         ignore_iof_thr=-1),
-    sampler=dict(type='PseudoSamplerRS'),
+    sampler=obb_module['train_sampler'],
     allowed_border=-1,
     pos_weight=-1,
     debug=False)
@@ -65,7 +71,7 @@ test_cfg = dict(
     nms_pre=2000,
     min_bbox_size=0,
     score_thr=0.05,
-    nms=dict(type='py_cpu_nms_poly_fast', iou_threshold=0.1),
+    nms=obb_module['nms'],
     max_per_img=2000)
 
 optimizer = dict(type='SGD', lr=0.01, momentum=0.9, weight_decay=0.0001)

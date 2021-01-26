@@ -14,8 +14,8 @@ def gen_dict(name, config,
         result=    work_dir+'/epoch_12_' + result_name,
         Task2_results = None,
         Task2_results_split = None,
-        dota_eval_results= work_dir + '/epoch_12_voc_eval_results.txt',
-        type='HBB'
+        eval_results= work_dir + '/epoch_12_voc_eval_results.txt',
+        bbox_type='HBB'
     )
 
 DIOR_root = './DOTA_configs/DIOR_voc_test'

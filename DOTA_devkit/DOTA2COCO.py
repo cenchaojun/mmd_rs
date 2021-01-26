@@ -1,4 +1,5 @@
 import DOTA_devkit.dota_utils as util
+from tqdm import tqdm
 import os
 import cv2
 import json
@@ -26,9 +27,9 @@ def DOTA2COCOTrain(srcpath, destfile, cls_names, difficult='2'):
 
     inst_count = 1
     image_id = 1
-    with open(destfile, 'w') as f_out:
+    with open(destfile, 'wt+') as f_out:
         filenames = util.GetFileFromThisRootDir(labelparent)
-        for file in filenames:
+        for file in tqdm(filenames):
             basename = util.custombasename(file)
             # image_id = int(basename[1:])
 
@@ -55,6 +56,10 @@ def DOTA2COCOTrain(srcpath, destfile, cls_names, difficult='2'):
                 single_obj['segmentation'] = []
                 single_obj['segmentation'].append(obj['poly'])
                 single_obj['iscrowd'] = 0
+                ############################################
+                for i in range(len(obj['poly'])):
+                    obj['poly'][i] = float(obj['poly'][i])
+                #############################################
                 xmin, ymin, xmax, ymax = min(obj['poly'][0::2]), min(obj['poly'][1::2]), \
                                          max(obj['poly'][0::2]), max(obj['poly'][1::2])
 
@@ -80,7 +85,7 @@ def DOTA2COCOTest(srcpath, destfile, cls_names):
     image_id = 1
     with open(destfile, 'w') as f_out:
         filenames = util.GetFileFromThisRootDir(imageparent)
-        for file in filenames:
+        for file in tqdm(filenames):
             basename = util.custombasename(file)
             imagepath = os.path.join(imageparent, basename + '.png')
             img = Image.open(imagepath)

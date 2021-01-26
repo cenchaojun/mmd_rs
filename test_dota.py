@@ -96,6 +96,9 @@ def parse_args():
 
 def main():
     args = parse_args()
+    print('#'*100)
+    print(args)
+    print('#'*100)
 
     assert args.out or args.eval or args.format_only or args.show \
         or args.show_dir, \
@@ -144,6 +147,10 @@ def main():
         distributed = True
         init_dist(args.launcher, **cfg.dist_params)
 
+    ######################################################################
+    print(cfg.pretty_text)
+    #######################################################################
+
     # build the dataloader
     samples_per_gpu = cfg.data.test.pop('samples_per_gpu', 1)
     if samples_per_gpu > 1:
@@ -171,18 +178,26 @@ def main():
         model.CLASSES = checkpoint['meta']['CLASSES']
     else:
         model.CLASSES = dataset.CLASSES
-
-    if not distributed:
-        model = MMDataParallel(model, device_ids=[0])
-        outputs = single_gpu_test(model, data_loader, args.show, args.show_dir,
-                                  args.show_score_thr)
+    ############################################################
+    if args.eval_options \
+            and 'load_results' in args.eval_options.keys() \
+            and args.eval_options['load_results']:
+        import pickle as pkl
+        with open(str(args.out), 'rb') as f:
+            outputs = pkl.load(f)
     else:
-        model = MMDistributedDataParallel(
-            model.cuda(),
-            device_ids=[torch.cuda.current_device()],
-            broadcast_buffers=False)
-        outputs = multi_gpu_test(model, data_loader, args.tmpdir,
-                                 args.gpu_collect)
+        if not distributed:
+            model = MMDataParallel(model, device_ids=[0])
+            outputs = single_gpu_test(model, data_loader, args.show, args.show_dir,
+                                      args.show_score_thr)
+        else:
+            model = MMDistributedDataParallel(
+                model.cuda(),
+                device_ids=[torch.cuda.current_device()],
+                broadcast_buffers=False)
+            outputs = multi_gpu_test(model, data_loader, args.tmpdir,
+                                     args.gpu_collect)
+        ############################################################
 
     rank, _ = get_dist_info()
     if rank == 0:
@@ -207,15 +222,24 @@ def main():
             # eval_kwargs['logger'] = True
 
 
-            eval_kwargs['classwise'] = True
-            eval_kwargs['proposal_nums'] = (100, 300, 1000)
+            ###################   很多信息从kwargs，也就是eval_options中得到#################
+            work_dir = os.path.split(str(args.out))[0]
+            if args.eval_options and 'eval_results_path' in args.eval_options.keys():
+                eval_results_path = os.path.split(args.eval_options['eval_results_path'])[1]
+                eval_results_path = os.path.join(work_dir, eval_results_path)
+
+            else:
+                eval_results_path = os.path.join(work_dir, 'eval_results.txt')
+            print('#'*80, '\n', 'EVALUATE ReSULTS PATH: %s\n' % eval_results_path, '#'*80, '\n')
+
+            kwargs = {}
+            # eval_kwargs['classwise'] = True
+            # eval_kwargs['proposal_nums'] = (100, 300, 1000)
             eval_kwargs.update(dict(metric=args.eval, **kwargs))
 
             s = str(dataset.evaluate(outputs, **eval_kwargs))
 
-            work_dir = os.path.split(str(args.out))[0]
-            eval_file = os.path.join(work_dir, 'eval_results.txt')
-            with open(eval_file, 'wt+') as f:
+            with open(eval_results_path, 'wt+') as f:
                 f.write(str(s))
             print(s)
             ######################################

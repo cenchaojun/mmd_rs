@@ -6,10 +6,10 @@ import os
 import codecs
 import numpy as np
 import math
-from dota_utils import GetFileFromThisRootDir
+from DOTA_devkit.dota_utils import GetFileFromThisRootDir
 import cv2
 import shapely.geometry as shgeo
-import dota_utils as util
+import DOTA_devkit.dota_utils as util
 import copy
 from multiprocessing import Pool
 from functools import partial
@@ -261,15 +261,68 @@ class splitbase():
             else:
                 left = left + self.slide
 
-    def splitdata(self, rate):
+    def SplitTestSingle(self, name, rate, extent):
+        """
+            split a single image and ground truth
+        :param name: image name
+        :param rate: the resize scale for the image
+        :param extent: the image format
+        :return:
+        """
+        try:
+            img = cv2.imread(os.path.join(self.imagepath, name + extent))
+            print('img name:', name)
+        except:
+            print('img name:', name)
+        if np.shape(img) == ():
+            return
+        if (rate != 1):
+            resizeimg = cv2.resize(img, None, fx=rate, fy=rate, interpolation = cv2.INTER_CUBIC)
+        else:
+            resizeimg = img
+        outbasename = name + '__' + str(rate) + '__'
+        weight = np.shape(resizeimg)[1]
+        height = np.shape(resizeimg)[0]
+
+        # if (max(weight, height) < self.subsize):
+        #     return
+
+        left, up = 0, 0
+        while (left < weight):
+            if (left + self.subsize >= weight):
+                left = max(weight - self.subsize, 0)
+            up = 0
+            while (up < height):
+                if (up + self.subsize >= height):
+                    up = max(height - self.subsize, 0)
+                right = min(left + self.subsize, weight - 1)
+                down = min(up + self.subsize, height - 1)
+                subimgname = outbasename + str(left) + '___' + str(up)
+
+                self.saveimagepatches(resizeimg, subimgname, left, up)
+                if (up + self.subsize >= height):
+                    break
+                else:
+                    up = up + self.slide
+            if (left + self.subsize >= weight):
+                break
+            else:
+                left = left + self.slide
+
+    def splitdata(self, rate, split_mode):
         """
         :param rate: resize rate before cut
         """
 
         imagelist = GetFileFromThisRootDir(self.imagepath)
         imagenames = [util.custombasename(x) for x in imagelist if (util.custombasename(x) != 'Thumbs')]
+        if split_mode == 'train':
+            worker = partial(self.SplitSingle, rate=rate, extent=self.ext)
+        elif split_mode == 'test':
+            worker = partial(self.SplitTestSingle, rate=rate, extent=self.ext)
+        else:
+            raise Exception('mode %s does not exists' % split_mode)
 
-        worker = partial(self.SplitSingle, rate=rate, extent=self.ext)
         #
         # for name in imagenames:
         #     self.SplitSingle(name, rate, self.ext)

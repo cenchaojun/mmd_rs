@@ -78,20 +78,8 @@ def make_cuda_ext(name, module, sources):
 setup(
     name='orn_cuda',
     ext_modules=[
-        # make_cuda_ext(
-        #     name='orn_cuda',
-        #     module='mmdet.ops.orn',
-        #     sources=['src/vision.cpp',
-        #              'src/cpu/ActiveRotatingFilter_cpu.cpp',
-        #              'src/cpu/RotationInvariantEncoding_cpu.cpp',
-        #              'src/cuda/ActiveRotatingFilter_cuda.cu',
-        #              'src/cuda/RotationInvariantEncoding_cuda.cu',
-        #              ]),
-        CUDAExtension('orn_cuda', ['src/vision.cpp',
-                      'src/cpu/ActiveRotatingFilter_cpu.cpp',
-                      'src/cpu/RotationInvariantEncoding_cpu.cpp',
-                      'src/cuda/ActiveRotatingFilter_cuda.cu',
-                      'src/cuda/RotationInvariantEncoding_cuda.cu',
-                      ]),
+        CUDAExtension('box_iou_rotated_cuda',
+                      ['src/box_iou_rotated_cpu.cpp',
+                       'src/box_iou_rotated_cuda.cu']),
     ],
     cmdclass={'build_ext': BuildExtension})

@@ -1,0 +1,5 @@
+img_sizes : range=[1024.000, 1024.000], mean=1024.000, std=0.000
+img_ratios : range=[1.000, 1.000], mean=1.000, std=0.000
+bbox_per_imgs : range=[1.000, 675.000], mean=19.818, std=42.141
+bbox_as_ratios : range=[0.000, 91.000], mean=1.200, std=1.090
+bbox_areas : range=[0.000, 1023.000], mean=53.827, std=56.390

@@ -9,10 +9,12 @@ from .base_bbox_coder import BaseBBoxCoder
 class DeltaXYWHARbboxCoderRS(BaseBBoxCoder):
     def __init__(self,
                  target_means=(0., 0., 0., 0.),
-                 target_stds=(1., 1., 1., 1.)):
+                 target_stds=(1., 1., 1., 1.),
+                 use_mod=False):
         super(BaseBBoxCoder, self).__init__()
         self.means = target_means
         self.stds = target_stds
+        self.use_mod = use_mod
 
     def encode(self, bboxes, gt_rbboxes):
         """
@@ -26,7 +28,7 @@ class DeltaXYWHARbboxCoderRS(BaseBBoxCoder):
         assert bboxes.size(-1) in [4, 5] \
                and gt_rbboxes.size(-1) == 5
         rbboxes = formulate_rbbox(bboxes)
-        encoded_bboxes = rbbox2delta(rbboxes, gt_rbboxes, self.means, self.stds)
+        encoded_bboxes = rbbox2delta(rbboxes, gt_rbboxes, self.means, self.stds, self.use_mod)
         return encoded_bboxes
 
     def decode(self,
@@ -52,9 +54,11 @@ class DeltaXYWHARbboxCoderRS(BaseBBoxCoder):
         rbboxes = formulate_rbbox(bboxes)
 
         decoded_bboxes = delta2rbbox(rbboxes, pred_rbboxes, self.means, self.stds,
-                                     max_shape, wh_ratio_clip)
+                                     max_shape, wh_ratio_clip,
+                                     self.use_mod)
 
         return decoded_bboxes
+    #def r
 
 def formulate_rbbox(bboxes):
     # https://editor.csdn.net/md/?articleId=108725272
@@ -73,7 +77,10 @@ def formulate_rbbox(bboxes):
 
 
 
-def rbbox2delta(proposals, gt, means=(0., 0., 0., 0., 0.), stds=(1., 1., 1., 1., 1.)):
+def rbbox2delta(proposals, gt,
+                means=(0., 0., 0., 0., 0.),
+                stds=(1., 1., 1., 1., 1.),
+                use_mod=False):
     """
 
     :param proposals: anchor, [x, y, h, w, a]
@@ -84,6 +91,10 @@ def rbbox2delta(proposals, gt, means=(0., 0., 0., 0., 0.), stds=(1., 1., 1., 1.,
     """
     assert proposals.size() == gt.size()
 
+    if use_mod:
+        inds = gt[..., 4] < -np.pi/4
+        gt[inds, 2], gt[inds, 3] = gt[inds, 3], gt[inds, 2]
+        gt[inds, 4] = -np.pi/2 - gt[inds, 4]
 
     dx = (gt[..., 0] - proposals[..., 0]) / proposals[..., 2]
     dy = (gt[..., 1] - proposals[..., 1]) / proposals[..., 3]
@@ -105,7 +116,8 @@ def delta2rbbox(rois,
                means=(0., 0., 0., 0.),
                stds=(1., 1., 1., 1.),
                max_shape=None,
-               wh_ratio_clip=16 / 1000):
+               wh_ratio_clip=16 / 1000,
+                use_mod=False):
     """
     :param rois:
     (N, 5). N = num_anchors * W * H
@@ -140,7 +152,7 @@ def delta2rbbox(rois,
     gy = py + ph * dy
     gw = pw * dw.exp()
     gh = ph * dh.exp()
-    ga = (da + pa) % (2 * np.pi)
+    ga = (da + pa) % (-np.pi * 2)
 
     # gx: N x num_classes
     # torch.stack([gx, gy, gw, gh, ga], dim=-1): N x num_classes x 5

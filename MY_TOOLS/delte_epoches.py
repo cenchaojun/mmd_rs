@@ -17,7 +17,7 @@ def del_ep(root):
         if not m:
             continue
         epoch_num = int(re.findall(r'\d+', f)[0])
-        if epoch_num not in [12, 24]:
+        if epoch_num not in [12, 24, 150]:
             print('Delete %s' % fp)
             os.remove(fp)
 

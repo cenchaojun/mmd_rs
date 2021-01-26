@@ -93,6 +93,46 @@ def generage_data(x_c, y_c, w, h, theta,
 ################################### 方法 #########################################
 
 ################################### cv2 #########################################
+# def cv2_mask2rbbox_mod_single(bi_mask):
+#     """
+#     cv2的方法获得旋转框角度
+#     :param bi_mask:
+#     :return:
+#     """
+#     contours, hierarchy = cv2.findContours(bi_mask,
+#                                            cv2.RETR_EXTERNAL,
+#                                            cv2.CHAIN_APPROX_NONE)
+#     # 点最多的那个，作为contours
+#     max_contour = max(contours, key=len)
+#     [(xc, yc), (w, h), theta] = cv2.minAreaRect(max_contour)
+#     theta = (theta / 360) * (2 * np.pi)
+#     # incline = 0  #倾向，大于-pi/4则为0
+#     if theta < -np.pi / 4:
+#         # theta = -np.pi / 2 - theta
+#         w, h = h, w
+#         # incline = 1
+#         # print('change')
+#
+#     return [xc, yc, w, h, theta]
+
+def cv2_mask2rbbox_mod_single(bi_mask):
+    """
+    cv2的方法获得旋转框角度
+    :param bi_mask:
+    :return:
+    """
+    contours, hierarchy = cv2.findContours(bi_mask,
+                                           cv2.RETR_EXTERNAL,
+                                           cv2.CHAIN_APPROX_NONE)
+    # 点最多的那个，作为contours
+    max_contour = max(contours, key=len)
+    [(xc, yc), (w, h), theta] = cv2.minAreaRect(max_contour)
+    theta = (theta / 360) * (2 * np.pi)
+    if theta < -np.pi / 4:
+        w, h = h, w
+
+    return [xc, yc, w, h, theta]
+
 def cv2_mask2rbbox_single(bi_mask):
     """
     cv2的方法获得旋转框角度
@@ -111,6 +151,12 @@ def cv2_mask2rbbox_single(bi_mask):
 def cv2_mask2rbbox(masks):
     rbboxes = list(map(cv2_mask2rbbox_single, masks))
     return rbboxes
+
+
+def cv2_mask2rbbox_mod(masks):
+    rbboxes = list(map(cv2_mask2rbbox_single, masks))
+    return rbboxes
+
 
 ################################### AerialDetection #########################################
 

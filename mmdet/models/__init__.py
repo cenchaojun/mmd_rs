@@ -25,6 +25,7 @@ from .rroi_extractors_ad import *
 from .roi_extractors_ad import *
 from .bbox_heads_ad import *
 from .mask_heads_ad import *
+from .rotated_bbox_heads import *
 
 __all__.extend([
     'BACKBONES', 'NECKS', 'ROI_EXTRACTORS', 'SHARED_HEADS', 'HEADS', 'LOSSES',

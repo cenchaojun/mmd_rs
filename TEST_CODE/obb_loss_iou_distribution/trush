@@ -1,0 +1,53 @@
+typedef struct Point
+{
+    int x;
+    int y;
+}Point;
+bool PolygonClip(const vector<Point> &poly1,const vector<Point> &poly2, std::vector<Point> &interPoly)
+{
+
+    if (poly1.size() < 3 || poly2.size() < 3)
+    {
+        return false;
+    }
+
+    long x,y;
+    //计算多边形交点
+    for (int i = 0;i < poly1.size();i++)
+    {
+        int poly1_next_idx = (i + 1) % poly1.size();
+        for (int j = 0;j < poly2.size();j++)
+        {
+            int poly2_next_idx = (j + 1) % poly2.size();
+            if (GetCrossPoint(poly1[i],poly1[poly1_next_idx],
+                poly2[j],poly2[poly2_next_idx],
+                x,y))
+            {
+                interPoly.push_back(cv::Point(x,y));
+            }
+        }
+    }
+
+    //计算多边形内部点
+    for(int i = 0;i < poly1.size();i++)
+    {
+        if (IsPointInpolygon(poly2,poly1[i]))
+        {
+            interPoly.push_back(poly1[i]);
+        }
+    }
+    for (int i = 0;i < poly2.size();i++)
+    {
+        if (IsPointInpolygon(poly1,poly2[i]))
+        {
+            interPoly.push_back(poly2[i]);
+        }
+    }
+
+    if(interPoly.size() <= 0)
+        return false;
+
+    //点集排序
+    ClockwiseSortPoints(interPoly);
+    return true;
+}

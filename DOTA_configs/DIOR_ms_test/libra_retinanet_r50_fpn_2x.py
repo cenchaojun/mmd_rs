@@ -1,4 +1,4 @@
-from .a_base_config import *
+from DOTA_configs.DIOR_ms_test.a_base_config import *
 _base_ = './retinanet_r50_fpn_2x.py'
 # model settings
 

@@ -56,10 +56,14 @@ from .anchor_head_rbbox_rs import AnchorHeadRbboxRS
 from .retina_head_rbbox_rs import RetinaHeadRbboxRS
 from .InLD_head_rs import InLD_head
 
+from .anchor_head_rbbox_cv2_mod_rs import AnchorHeadRbboxCV2ModRS
+from .retina_head_rbbox_cv2_mod_rs import RetinaHeadRbboxCV2ModRS
+
 __all__.extend([
     'AnchorHeadRbbox', 'RetinaHeadRbbox', 'RPNHeadAD',
     'RetinaHeadAD', 'AnchorHeadRS', 'RetinaHeadRS',
     'BaseDenseHeadRS', 'AnchorHeadRbboxRS','RetinaHeadRbboxRS',
-    'InLD_head'
+    'InLD_head',
+    'AnchorHeadRbboxCV2ModRS', 'RetinaHeadRbboxCV2ModRS'
 ])
 

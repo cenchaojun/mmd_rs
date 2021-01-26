@@ -17,6 +17,7 @@ def gen_dict(name, config,
         work_dir=  work_dir,
         cp_file=   work_dir+'/epoch_%d.pth' % epoch,
         result=    work_dir+'/' + result_name,
+
         Task2_results = work_dir + '/Task2_results_nms',
         Task2_results_split = work_dir + '/Task2_results',
         dota_eval_results=work_dir + '/dota_eval_results.json',

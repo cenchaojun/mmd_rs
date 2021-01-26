@@ -52,6 +52,15 @@ from .bbox_target_rbbox_ad import bbox_target_rbbox, rbbox_target_rbbox
 from .assign_sampling_ad import build_assigner, build_sampler, assign_and_sample
 from .bbox_target_ad import bbox_target
 
+
+from .transforms_rotated_s2a import (norm_angle,
+                                 poly_to_rotated_box_np, poly_to_rotated_box_single, poly_to_rotated_box,
+                                 rotated_box_to_poly_np, rotated_box_to_poly_single,
+                                 rotated_box_to_poly, rotated_box_to_bbox_np, rotated_box_to_bbox,
+                                 bbox2result_rotated, bbox_flip_rotated, bbox_mapping_rotated,
+                                 bbox_mapping_back_rotated, bbox_to_rotated_box, roi_to_rotated_box, rotated_box_to_roi,
+                                 bbox2delta_rotated, delta2bbox_rotated)
+
 __all__.extend([
     'bbox_overlaps_cython',
     'dbbox2delta', 'delta2dbbox', 'mask2poly', 'get_best_begin_point', 'polygonToRotRectangle_batch',
@@ -64,5 +73,13 @@ __all__.extend([
     'bbox_rotate_mapping', 'bbox_rotate_mapping', 'dbbox_mapping_back',
     'build_assigner', 'build_sampler', 'assign_and_sample',
     'bbox2delta', 'delta2bbox',
-    'bbox_target'
+    'bbox_target',
+
+    'norm_angle',
+     'poly_to_rotated_box_np', 'poly_to_rotated_box_single', 'poly_to_rotated_box',
+     'rotated_box_to_poly_np', 'rotated_box_to_poly_single',
+     'rotated_box_to_poly', 'rotated_box_to_bbox_np', 'rotated_box_to_bbox',
+     'bbox2result_rotated', 'bbox_flip_rotated', 'bbox_mapping_rotated',
+     'bbox_mapping_back_rotated', 'bbox_to_rotated_box', 'roi_to_rotated_box', 'rotated_box_to_roi',
+     'bbox2delta_rotated', 'delta2bbox_rotated'
 ])

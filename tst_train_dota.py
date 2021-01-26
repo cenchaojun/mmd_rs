@@ -1,7 +1,7 @@
 import argparse
 import copy
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = '9'
+os.environ["CUDA_VISIBLE_DEVICES"] = '4'
 
 import os.path as osp
 import time
@@ -26,7 +26,7 @@ def setup_seed(seed):
     np.random.seed(seed)
     random.seed(seed)
     torch.backends.cudnn.deterministic = True
-setup_seed(2019)
+setup_seed(2021)
 torch.multiprocessing.set_sharing_strategy('file_system')
 
 
@@ -88,11 +88,11 @@ def main():
     #         '--work-dir', './results/retinanet_hbb_tv'
     #         ]
 
-    # args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_dota.py',
-    #         '--gpus', '1',
-    #         '--no-validate',
-    #         '--work-dir', './results/retinanet_obb_tv_ver1_cv2_no_trick'
-    #         ]
+    args = ['./DOTA_configs/DOTA_obb/retinanet_r50_fpn_2x_dota.py',
+            '--gpus', '1',
+            '--no-validate',
+            '--work-dir', './results/retinanet_obb_tv_ver1_cv2_no_trick'
+            ]
     #
     # args = ['./DOTA_configs/DOTA_obb/faster_rcnn_r50_fpn_1x_dota.py',
     #         '--gpus', '4',
@@ -107,13 +107,53 @@ def main():
     #         '--work-dir', './results/faster_obb_tv_ver1_cv2_InLD'
     #         ]
 
+    # args = ['./DOTA_configs/DOTA_obb/s2anet_r50_fpn_1x_dota.py',
+    #         './results/DOTA_s2anet_obb_tv/epoch_24.pth',
+    #         '--out', './results/DOTA_s2anet_obb_tv/results.pkl',
+    #          '--eval', 'bbox'
+    #         ]
+    #
+    #
+    # args = ['./DOTA_configs/DIOR/retinanet_r50_fpn_2x.py',
+    #         '--gpus', '2',
+    #         '--no-validate',
+    #         '--work-dir', './results/retina_test'
+    #         ]
+    #
+    # args = ['./configs/detr/detr_r50_8x2_150e_coco.py',
+    #         '--gpus', '4',
+    #         # '--no-validate',
+    #         '--work-dir', './results/detr_baseline'
+    #         ]
+    # args = ['./DOTA_configs/General_RS_hbb/detr_r50_8x2_150e.py',
+    #         '--gpus', '4',
+    #         '--no-validate',
+    #         '--work-dir', './results/DIOR_detr_full'
+    #         ]
+    #
+    # args = ['./DOTA_configs/DOTA_obb/s2anet_r50_fpn_1x_dota.py',
+    #         '--gpus', '1',
+    #         '--no-validate',
+    #         '--work-dir', './results/DOTA_s2anet_obb_tv'
+    #         ]
+    # args = ['./DOTA_configs/DOTA_obb/faster_rcnn_r50_fpn_1x_dota.py',
+    #         '--gpus', '1',
+    #         '--no-validate',
+    #         '--work-dir', './results/DOTA_faster_obb_tv_1GPU_cv2_no_trick'
+    #         ]
 
-    args = ['./DOTA_configs/DIOR/retinanet_r50_fpn_2x.py',
+
+    # args = ['./DOTA_configs/DOTA_obb/faster_rcnn_RoITrans_r50_fpn_1x_dota.py',
+    #         '--gpus', '1',
+    #         '--no-validate',
+    #         '--work-dir', './results/DOTA_faster_rcnn_RoITrans_tv'
+    #         ]
+
+    args = ['./DOTA_configs/DOTA_obb/faster_rcnn_r50_fpn_1x_dota.py',
             '--gpus', '1',
             '--no-validate',
-            '--work-dir', './results/DIOR_retina_r50_2x'
+            '--work-dir', './results/DOTA_faster_obb_tv_1GPU_cv2_no_trick'
             ]
-
 
     args = parse_args(args)
     print(args)

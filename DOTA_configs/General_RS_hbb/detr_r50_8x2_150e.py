@@ -1,5 +1,12 @@
+from DOTA_configs.General_RS_hbb.a_base_config import *
+
+max_img_scale = 800
+mis = max_img_scale
+##################################################################################
+
 _base_ = [
-    '../_base_/datasets/coco_detection.py', '../_base_/default_runtime.py'
+    dataset_config,
+    '../_base_/default_runtime.py'
 ]
 model = dict(
     type='DETR',
@@ -15,7 +22,7 @@ model = dict(
         style='pytorch'),
     bbox_head=dict(
         type='TransformerHead',
-        num_classes=80,
+        num_classes=num_classes,
         in_channels=2048,
         num_fcs=2,
         transformer=dict(
@@ -62,16 +69,16 @@ train_pipeline = [
         policies=[[
             dict(
                 type='Resize',
-                img_scale=[(480, 1333), (512, 1333), (544, 1333), (576, 1333),
-                           (608, 1333), (640, 1333), (672, 1333), (704, 1333),
-                           (736, 1333), (768, 1333), (800, 1333)],
+                img_scale=[(480, mis), (512, mis), (544, mis), (576, mis),
+                           (608, mis), (640, mis), (672, mis), (704, mis),
+                           (736, mis), (768, mis), (800, mis)],
                 multiscale_mode='value',
                 keep_ratio=True)
         ],
                   [
                       dict(
                           type='Resize',
-                          img_scale=[(400, 1333), (500, 1333), (600, 1333)],
+                          img_scale=[(400, mis), (500, mis), (600, mis)],
                           multiscale_mode='value',
                           keep_ratio=True),
                       dict(
@@ -81,10 +88,10 @@ train_pipeline = [
                           allow_negative_crop=True),
                       dict(
                           type='Resize',
-                          img_scale=[(480, 1333), (512, 1333), (544, 1333),
-                                     (576, 1333), (608, 1333), (640, 1333),
-                                     (672, 1333), (704, 1333), (736, 1333),
-                                     (768, 1333), (800, 1333)],
+                          img_scale=[(480, mis), (512, mis), (544, mis),
+                                     (576, mis), (608, mis), (640, mis),
+                                     (672, mis), (704, mis), (736, mis),
+                                     (768, mis), (800, mis)],
                           multiscale_mode='value',
                           override=True,
                           keep_ratio=True)
@@ -101,7 +108,7 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(1333, 800),
+        img_scale=(mis, 800),
         flip=False,
         transforms=[
             dict(type='Resize', keep_ratio=True),
@@ -113,7 +120,7 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    samples_per_gpu=2,
+    samples_per_gpu=4,
     workers_per_gpu=2,
     train=dict(pipeline=train_pipeline),
     val=dict(pipeline=test_pipeline),

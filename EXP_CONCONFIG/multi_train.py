@@ -14,9 +14,16 @@ def modify_pycmd(cmd, gpus=None, ctrl=None):
     assert gpus
     for id in gpus:
         ctrl[id] = 1
-    gpu_str = str(gpus).strip('[]')
+    gpu_str = '%d' % gpus[0]
+    if len(gpus) > 1:
+        for i in range(1, len(gpus)):
+            gpu_str +=',%d' % gpus[i]
     cmd = cmd.strip()
     cmd += ' -d ' + gpu_str
+    print('*'*100)
+    print(cmd)
+    print('*'*100)
+
     os.system(cmd)
 
     for id in gpus:
@@ -43,38 +50,14 @@ def get_available_gpu_ids(deviceCount, max_used=1):
 
 if __name__ == "__main__":
     # 自动化测试命令
-    from EXP_CONCONFIG.model_DIOR_full_config import DIOR_cfgs
-    from EXP_CONCONFIG.model_DIOR_full_ms_test_config import DIOR_ms_test_cfgs
-    cfgs = DIOR_ms_test_cfgs
-    cfgs.update(DIOR_cfgs)
+    from EXP_CONCONFIG.CONFIGS.model_NWPU_VHR_10_config import NV10_cfgs
+    cfgs = NV10_cfgs
     cmds = []
     # 筛选出已经训练好的模型，并形成commands
     for model_name, cfg in cfgs.items():
         work_dir = cfg['work_dir']
-        # 模型存在
-        if os.path.exists(work_dir):
-            work_files = os.listdir(work_dir)
-            # 模型训练完毕
-            if os.path.exists(cfg['cp_file']):
-                # print(cfg['result'])
-                # 已经存在结果
-                if not os.path.exists(cfg['result']):
-                    print('%-80s \tDO Inference' % model_name)
-                    cmds.append('python py_cmd.py %s -m test' % model_name)
-                else:
-                    print('%-80s \tLOAD RESULTS'%model_name)
-                    cmds.append('python py_cmd.py %s -m test -load_results' % model_name)
-        ##############################
-        # work_dir = cfg['work_dir']
-        # # 模型存在
-        # if os.path.exists(work_dir):
-        #     work_files = os.listdir(work_dir)
-        #     # 模型训练完毕
-        #     if os.path.exists(cfg['cp_file']):
-        #         print(cfg['result'])
-        #         # 不存在result文件
-        #         if not os.path.exists(cfg['result']):
-        #             cmds.append('python py_cmd.py %s -m test' % model_name)
+        cmds.append('python py_cmd.py %s -m train'
+                    % model_name)
 
     for cmd in cmds:
         print(cmd)
@@ -101,7 +84,8 @@ if __name__ == "__main__":
     #     dict(fun=modify_pycmd, kwargs=dict(cmd='python py_cmd.py DIOR_libra_faster_rcnn_full -m test',ctrl=used_gpu), used_gpu=1),
     #     dict(fun=modify_pycmd, kwargs=dict(cmd='python py_cmd.py DIOR_pafpn_full -m test',ctrl=used_gpu), used_gpu=1),
     # ]
-    tasks = [dict(fun=modify_pycmd, kwargs=dict(cmd=cmd, ctrl=used_gpu),used_gpu=1) for cmd in cmds]
+    tasks = [dict(fun=modify_pycmd, kwargs=dict(cmd=cmd, ctrl=used_gpu),used_gpu=2)
+             for cmd in cmds]
     task_id = 0
     p_list = []
 

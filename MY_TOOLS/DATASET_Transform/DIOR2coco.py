@@ -4,7 +4,7 @@ import cv2
 mpl.use('Qt5Agg')
 from xml.etree import ElementTree as et
 import json
-from MY_TOOLS.DIOR_dataset.coco_annotation_template import COCOTmp
+from MY_TOOLS.DATASET_Transform.coco_annotation_template import COCOTmp
 from commonlibs.common_tools import *
 from tqdm import tqdm
 

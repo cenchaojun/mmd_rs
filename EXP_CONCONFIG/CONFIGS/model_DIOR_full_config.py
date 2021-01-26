@@ -1,4 +1,4 @@
-root = '.'
+from EXP_CONCONFIG.CONFIGS.base import Project_root
 def gen_dict(name, config,
              result_root='/home/huangziyue/data/mmdet_results',
              epoch=24,
@@ -13,11 +13,11 @@ def gen_dict(name, config,
         result=    work_dir+'/' + result_name,
         Task2_results = None,
         Task2_results_split = None,
-        dota_eval_results= work_dir + '/eval_results.txt',
-        type='HBB'
+        eval_results= work_dir + '/eval_results.txt',
+        bbox_type='HBB'
     )
 
-DIOR_root = './DOTA_configs/DIOR'
+DIOR_root = Project_root + '/DOTA_configs/DIOR'
 DIOR_cfgs = [
     gen_dict('DIOR_retinanet_full',
              DIOR_root + '/' + 'retinanet_r50_fpn_2x.py'),
